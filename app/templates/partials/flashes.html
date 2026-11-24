@@ -1,0 +1,28 @@
+{# Mensajes flash con autocierre. #}
+{% if flashes %}
+<div class="mb-4 space-y-2" aria-live="polite">
+  {% for item in flashes %}
+  {% set styles = {
+      'success': 'border-emerald-200 bg-emerald-50 text-emerald-800',
+      'error': 'border-red-200 bg-red-50 text-red-800',
+      'warning': 'border-amber-200 bg-amber-50 text-amber-900',
+      'info': 'border-blue-200 bg-blue-50 text-blue-800'
+  } %}
+  <div class="alert {{ styles.get(item.category, styles['info']) }}" data-flash role="status">
+    <span class="mt-0.5 shrink-0">
+      {% if item.category == 'success' %}
+      <svg class="h-5 w-5"><use href="#i-check-circle"></use></svg>
+      {% elif item.category == 'error' %}
+      <svg class="h-5 w-5"><use href="#i-warning"></use></svg>
+      {% else %}
+      <svg class="h-5 w-5"><use href="#i-info"></use></svg>
+      {% endif %}
+    </span>
+    <p class="flex-1 leading-relaxed">{{ item.message }}</p>
+    <button type="button" onclick="this.closest('[data-flash]').remove()" class="shrink-0 rounded-lg p-1 opacity-60 hover:opacity-100" aria-label="Cerrar mensaje">
+      <svg class="h-4 w-4"><use href="#i-x"></use></svg>
+    </button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}

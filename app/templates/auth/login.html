@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}Iniciar sesión{% endblock %}
+
+{% block public_content %}
+<div class="grid min-h-screen lg:grid-cols-2">
+  <!-- Panel de marca -->
+  <section class="relative hidden overflow-hidden bg-munchy-blue p-12 text-white lg:flex lg:flex-col lg:justify-between">
+    <div class="absolute -right-24 -top-24 h-96 w-96 rounded-full bg-white/5"></div>
+    <div class="absolute -bottom-32 -left-16 h-96 w-96 rounded-full bg-munchy-red/20"></div>
+    <div class="relative">
+      <div class="flex items-center gap-3">
+        <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 backdrop-blur">
+          <svg class="h-7 w-7"><use href="#i-building"></use></svg>
+        </span>
+        <div>
+          <p class="font-display text-2xl font-extrabold">MunchyRoom</p>
+          <p class="text-xs font-medium uppercase tracking-[0.2em] text-blue-100">Alimentos Munchy</p>
+        </div>
+      </div>
+      <h1 class="mt-16 max-w-md font-display text-4xl font-extrabold leading-tight">
+        Reuniones organizadas.<br>Espacios disponibles.<br>
+        <span class="text-blue-200">Decisiones a tiempo.</span>
+      </h1>
+      <p class="mt-5 max-w-md text-base leading-relaxed text-blue-100">
+        Solicita salas, valida disponibilidad y recibe la autorización final desde tu teléfono,
+        tableta o computadora.
+      </p>
+      <div class="mt-10 space-y-4">
+        <div class="flex items-start gap-3">
+          <span class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/10">
+            <svg class="h-4 w-4"><use href="#i-calendar"></use></svg>
+          </span>
+          <p class="text-sm text-blue-100"><strong class="text-white">Calendario en vivo</strong> por sala, con bloqueo estricto de solapamientos.</p>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/10">
+            <svg class="h-4 w-4"><use href="#i-shield"></use></svg>
+          </span>
+          <p class="text-sm text-blue-100"><strong class="text-white">Doble validación</strong> del administrador y del jefe autorizador.</p>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/10">
+            <svg class="h-4 w-4"><use href="#i-whatsapp"></use></svg>
+          </span>
+          <p class="text-sm text-blue-100"><strong class="text-white">Convocatoria por WhatsApp</strong> con envío guiado y control de enviados.</p>
+        </div>
+      </div>
+    </div>
+    <p class="relative text-xs text-blue-200">© {{ now.year }} Alimentos Munchy, C.A. · Hora de Venezuela (UTC-4)</p>
+  </section>
+
+  <!-- Formulario -->
+  <section class="flex min-h-screen flex-col justify-center bg-slate-50 px-5 py-10 sm:px-10">
+    <div class="mx-auto w-full max-w-md">
+      <div class="mb-8 flex items-center gap-3 lg:hidden">
+        <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-munchy-blue text-white shadow-soft">
+          <svg class="h-6 w-6"><use href="#i-building"></use></svg>
+        </span>
+        <div>
+          <p class="font-display text-xl font-extrabold text-munchy-ink">MunchyRoom</p>
+          <p class="text-[11px] font-medium uppercase tracking-wider text-slate-400">Alimentos Munchy</p>
+        </div>
+      </div>
+
+      <div class="card card-pad sm:p-8">        <div class="mb-6">
+          <span class="badge border-blue-200 bg-blue-50 text-munchy-blue">Acceso interno</span>
+          <h2 class="mt-3 font-display text-2xl font-extrabold text-munchy-ink">Bienvenido(a)</h2>
+          <p class="mt-1 text-sm text-slate-500">Ingresa con tu correo corporativo para gestionar tus reuniones.</p>
+        </div>
+
+        <form method="post" action="/auth/login" class="space-y-4" x-data="{ show: false }">
+          <input type="hidden" name="next" value="{{ next }}">
+          <div>
+            <label for="email" class="label">Correo electrónico</label>
+            <div class="relative">
+              <span class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
+                <svg class="h-5 w-5"><use href="#i-user-cog"></use></svg>
+              </span>
+              <input id="email" name="email" type="email" inputmode="email" autocomplete="username"
+                     value="{{ email }}" required placeholder="nombre@munchy.com"
+                     class="field pl-11">
+            </div>
+          </div>
+          <div>
+            <label for="password" class="label">Contraseña</label>
+            <div class="relative">
+              <span class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
+                <svg class="h-5 w-5"><use href="#i-key"></use></svg>
+              </span>
+              <input id="password" name="password" :type="show ? 'text' : 'password'" autocomplete="current-password"
+                     required placeholder="••••••••" class="field pl-11 pr-12">
+              <button type="button" @click="show = !show"
+                      class="absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-xs font-bold text-slate-500 hover:bg-slate-100"
+                      :aria-label="show ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+                <span x-text="show ? 'Ocultar' : 'Ver'"></span>
+              </button>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary w-full">
+            Iniciar sesión
+            <svg class="h-5 w-5"><use href="#i-arrow-right"></use></svg>
+          </button>
+        </form>
+
+        {% if show_seed_hint %}
+        <div class="mt-6 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 text-xs text-slate-600">
+          <p class="font-bold text-slate-700">Acceso inicial (entorno de desarrollo)</p>
+          <p class="mt-1">Usuario: <code class="rounded bg-white px-1.5 py-0.5 font-mono text-munchy-blue">admin@munchy.com</code></p>
+          <p class="mt-1">Contraseña: <code class="rounded bg-white px-1.5 py-0.5 font-mono text-munchy-blue">MunchyAdmin2026*</code></p>
+          <p class="mt-2 text-[11px] text-slate-500">Por seguridad, el sistema pedirá cambiarla al primer ingreso.</p>
+        </div>
+        {% endif %}
+      </div>
+
+      <p class="mt-6 text-center text-xs text-slate-400">
+        MunchyRoom · Sistema interno de gestión de salas<br>
+        Alimentos Munchy, C.A. · Zona horaria America/Caracas
+      </p>
+    </div>
+  </section>
+</div>
+{% endblock %}

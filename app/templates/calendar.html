@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% from "partials/ui.html" import status_badge, empty_state %}
+{% block title %}Calendario{% endblock %}
+
+{% block content %}
+{% set qs_room = '&room_id=' ~ selected_room_id if selected_room_id else '' %}
+
+<div class="mb-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+  <div>
+    <p class="text-xs font-semibold uppercase tracking-wider text-munchy-red">Disponibilidad</p>
+    <h1 class="mt-1 font-display text-2xl font-extrabold text-munchy-ink sm:text-3xl">Calendario de salas</h1>
+    <p class="mt-1 text-sm text-slate-500">
+      {% if view == 'day' %}{{ selected_date | date_long }}{% else %}Semana del {{ selected_date | date_long }}{% endif %}
+    </p>
+  </div>
+  <div class="flex flex-wrap items-center gap-2">
+    <a href="/reservations/new?date={{ selected_date.isoformat() }}{{ qs_room }}" class="btn btn-primary btn-sm">
+      <svg class="h-4 w-4"><use href="#i-plus"></use></svg> Solicitar
+    </a>
+    <div class="inline-flex rounded-xl border border-slate-200 bg-white p-1">
+      <a href="/calendar?date={{ selected_date.isoformat() }}&view=day{{ qs_room }}"
+         class="rounded-lg px-3 py-1.5 text-xs font-bold {% if view == 'day' %}bg-munchy-blue text-white{% else %}text-slate-600 hover:bg-slate-50{% endif %}">Día</a>
+      <a href="/calendar?date={{ selected_date.isoformat() }}&view=week{{ qs_room }}"
+         class="rounded-lg px-3 py-1.5 text-xs font-bold {% if view == 'week' %}bg-munchy-blue text-white{% else %}text-slate-600 hover:bg-slate-50{% endif %}">Semana</a>
+    </div>
+  </div>
+</div>
+
+<!-- Controles de fecha -->
+<div class="card mb-4 flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:justify-between">
+  <div class="flex items-center gap-2">
+    <a href="/calendar?date={{ prev_date.isoformat() }}&view={{ view }}{{ qs_room }}"
+       class="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50" aria-label="Anterior">
+      <svg class="h-5 w-5"><use href="#i-chevron-left"></use></svg>
+    </a>
+    <a href="/calendar?date={{ today.isoformat() }}&view={{ view }}{{ qs_room }}" class="btn btn-secondary btn-sm">Hoy</a>
+    <a href="/calendar?date={{ next_date.isoformat() }}&view={{ view }}{{ qs_room }}"
+       class="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50" aria-label="Siguiente">
+      <svg class="h-5 w-5"><use href="#i-chevron-right"></use></svg>
+    </a>
+    <span class="ml-1 text-sm font-semibold text-slate-700">
+      {% if view == 'week' %}{{ selected_date | date_medium }} – {{ week_end | date_medium }}{% else %}{{ selected_date | date_medium }}{% endif %}
+    </span>
+  </div>
+  <div class="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
+    <a href="/calendar?date={{ selected_date.isoformat() }}&view={{ view }}"
+       class="shrink-0 rounded-full px-3 py-1.5 text-xs font-bold {% if not selected_room_id %}bg-munchy-blue text-white{% else %}bg-slate-100 text-slate-600 hover:bg-slate-200{% endif %}">Todas</a>
+    {% for room in rooms %}
+    <a href="/calendar?date={{ selected_date.isoformat() }}&view={{ view }}&room_id={{ room.id }}"
+       class="shrink-0 rounded-full px-3 py-1.5 text-xs font-bold {% if selected_room_id == room.id %}bg-munchy-blue text-white{% else %}bg-slate-100 text-slate-600 hover:bg-slate-200{% endif %}">
+      {{ room.name }}
+    </a>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Leyenda -->
+<div class="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2 px-1 text-[11px] font-medium text-slate-500">
+  <span class="inline-flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-emerald-500"></span> Autorizada</span>
+  <span class="inline-flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-orange-500"></span> Pendiente del jefe</span>
+  <span class="inline-flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-amber-500"></span> Pendiente del admin</span>
+  <span class="ml-auto hidden sm:inline">Toca una reunión para ver el detalle</span>
+</div>
+
+{% if not rooms %}
+  {{ empty_state('No hay salas activas', 'El administrador debe activar o crear una sala para mostrar el calendario.', 'i-building') }}
+{% elif view == 'day' %}
+<!-- Vista diaria -->
+<div class="card overflow-hidden">
+  <div class="calendar-scroll overflow-x-auto">
+    <div class="flex min-w-[760px]">
+      <!-- Eje de horas -->
+      <div class="w-16 shrink-0 border-r border-slate-200 bg-slate-50/80">
+        <div class="flex h-14 items-end justify-end border-b border-slate-200 px-2 pb-2">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Hora</span>
+        </div>
+        {% for hour in hours %}
+        <div class="relative border-b border-slate-100" style="height: {{ 64 }}px">
+          <span class="absolute -top-2 right-2 text-[11px] font-semibold text-slate-400">{{ '%02d' % hour }}:00</span>
+        </div>
+        {% endfor %}
+      </div>
+
+      {% for column in day_columns %}
+      <div class="min-w-[220px] flex-1 border-r border-slate-200 last:border-r-0">
+        <div class="flex h-14 flex-col justify-center border-b border-slate-200 bg-white px-3">
+          <p class="truncate text-sm font-bold text-slate-800">{{ column.room.name }}</p>
+          <p class="truncate text-[10px] text-slate-500">{{ column.room.capacity }} personas · {{ column.room.location }}</p>
+        </div>
+        <div class="relative bg-white" style="height: {{ grid_height }}px">
+          {% for hour in hours %}
+          <div class="absolute inset-x-0 border-b border-slate-100" style="top: {{ loop.index0 * 64 }}px; height: 64px"></div>
+          {% endfor %}
+
+          {% for event in column.events %}
+          {% set r = event.reservation %}
+          <a href="/reservations/{{ r.id }}"
+             class="absolute left-1.5 right-1.5 overflow-hidden rounded-lg border-l-4 px-2 py-1.5 shadow-sm transition {{ status_meta(r.status).block }}"
+             style="top: {{ event.top }}px; height: {{ event.height }}px"
+             title="{{ r.purpose }} · {{ r.start_time | time12 }} – {{ r.end_time | time12 }}">
+            <span class="block truncate text-[11px] font-extrabold leading-tight">
+              {% if event.clipped_top %}↥ {% endif %}{{ r.start_time | time12 }} · {{ r.purpose }}
+            </span>
+            <span class="mt-0.5 block truncate text-[10px] opacity-80">{{ r.requester.full_name }}</span>
+            {% if event.height > 64 %}
+            <span class="mt-0.5 block truncate text-[10px] opacity-70">{{ r.end_time | time12 }} · {{ r.duration_minutes | duration }}</span>
+            {% endif %}
+          </a>
+          {% endfor %}
+
+          {% if not column.events %}
+          <div class="pointer-events-none absolute inset-x-2 top-4 rounded-lg border border-dashed border-emerald-200 bg-emerald-50/40 py-2 text-center text-[10px] font-semibold text-emerald-600">
+            Libre
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+<p class="mt-2 px-1 text-[11px] text-slate-400">Ventana visible: {{ window_start_hour }}:00 a {{ window_end_hour }}:00 (hora de Caracas). Las reuniones fuera de este rango se muestran recortadas.</p>
+
+{% else %}
+<!-- Vista semanal -->
+<div class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-7">
+  {% for column in week_columns %}
+  {% set day = column.day %}
+  <div class="card overflow-hidden {% if day == today %}ring-2 ring-munchy-blue/30{% endif %}">
+    <a href="/calendar?date={{ day.isoformat() }}&view=day{{ qs_room }}"
+       class="flex items-center justify-between border-b border-slate-100 px-3 py-2.5 {% if day == today %}bg-munchy-blue text-white{% else %}bg-white text-slate-700 hover:bg-slate-50{% endif %}">
+      <div>
+        <p class="text-[10px] font-bold uppercase tracking-wider {% if day == today %}text-blue-100{% else %}text-slate-400{% endif %}">{{ day | weekday }}</p>
+        <p class="text-sm font-extrabold">{{ day | date_medium }}</p>
+      </div>
+      {% if day == today %}<span class="rounded-full bg-white/20 px-2 py-0.5 text-[9px] font-bold uppercase">Hoy</span>{% endif %}
+    </a>
+    <div class="space-y-2 p-2.5">
+      {% for r in column.reservations %}
+      <a href="/reservations/{{ r.id }}" class="block rounded-lg border-l-4 p-2 transition {{ status_meta(r.status).block }}">
+        <p class="text-[11px] font-extrabold">{{ r.start_time | time12 }} – {{ r.end_time | time12 }}</p>
+        <p class="mt-0.5 line-clamp-2 text-[11px] font-semibold">{{ r.purpose }}</p>
+        <p class="mt-1 truncate text-[10px] opacity-70">{{ r.room.name }} · {{ r.requester.full_name.split()[0] }}</p>
+      </a>
+      {% else %}
+      <p class="rounded-lg border border-dashed border-emerald-200 bg-emerald-50/50 px-2 py-4 text-center text-[10px] font-semibold text-emerald-600">
+        Sin reuniones
+      </p>
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,347 @@
+{% extends "base.html" %}
+{% from "partials/ui.html" import status_badge, avatar %}
+{% block title %}{{ reservation.purpose }}{% endblock %}
+
+{% block content %}
+<div class="mb-4 flex flex-wrap items-center justify-between gap-2">
+  <a href="/reservations" class="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-500 hover:text-munchy-blue">
+    <svg class="h-4 w-4"><use href="#i-chevron-left"></use></svg> Volver
+  </a>
+  <div class="flex items-center gap-2">
+    <span class="text-xs font-semibold text-slate-400">Solicitud #{{ reservation.id }}</span>
+    <button type="button" onclick="window.print()" class="btn btn-secondary btn-sm no-print">
+      <svg class="h-4 w-4"><use href="#i-clipboard"></use></svg> Imprimir
+    </button>
+  </div>
+</div>
+
+<div class="grid gap-6 lg:grid-cols-3">
+  <div class="space-y-5 lg:col-span-2">
+    <!-- Encabezado -->
+    <section class="card overflow-hidden">
+      <div class="border-b border-slate-100 bg-gradient-to-br from-white to-slate-50 p-5 sm:p-6">
+        <div class="flex flex-wrap items-center gap-2">
+          {{ status_badge(reservation.status) }}
+          {% if reservation.status == ReservationStatus.AUTHORIZED %}
+          <span class="chip text-emerald-700"><svg class="h-3 w-3"><use href="#i-whatsapp"></use></svg> {{ reservation.participants_notified_count }}/{{ reservation.participants|length }} convocados</span>
+          {% endif %}
+        </div>
+        <h1 class="mt-3 font-display text-2xl font-extrabold leading-tight text-munchy-ink sm:text-3xl">{{ reservation.purpose }}</h1>
+        <p class="mt-2 text-sm text-slate-500">{{ status_meta(reservation.status).description }}</p>
+
+        <div class="mt-4 grid gap-3 sm:grid-cols-2">
+          <div class="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-3.5 py-3">
+            <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-munchy-blue-soft text-munchy-blue"><svg class="h-5 w-5"><use href="#i-calendar"></use></svg></span>
+            <div>
+              <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Fecha</p>
+              <p class="text-sm font-bold text-slate-800">{{ reservation.meeting_date | date_long }}</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-3.5 py-3">
+            <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-munchy-blue-soft text-munchy-blue"><svg class="h-5 w-5"><use href="#i-clock"></use></svg></span>
+            <div>
+              <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Horario</p>
+              <p class="text-sm font-bold text-slate-800">{{ reservation.start_time | time12 }} – {{ reservation.end_time | time12 }}</p>
+              <p class="text-[11px] text-slate-500">{{ reservation.duration_minutes | duration }} · Hora de Caracas</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-3.5 py-3">
+            <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-munchy-blue-soft text-munchy-blue"><svg class="h-5 w-5"><use href="#i-building"></use></svg></span>
+            <div>
+              <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Sala</p>
+              <p class="text-sm font-bold text-slate-800">{{ reservation.room.name }}</p>
+              <p class="text-[11px] text-slate-500">{{ reservation.room.location }}</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-3.5 py-3">
+            <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-munchy-blue-soft text-munchy-blue"><svg class="h-5 w-5"><use href="#i-users"></use></svg></span>
+            <div>
+              <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Participantes</p>
+              <p class="text-sm font-bold text-slate-800">{{ reservation.expected_participants_count }} esperados</p>
+              <p class="text-[11px] text-slate-500">{{ reservation.participants|length }} invitados en el sistema</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {% if reservation.status == ReservationStatus.REJECTED %}
+      <div class="border-b border-red-100 bg-red-50 px-5 py-4 sm:px-6">
+        <div class="flex gap-2.5 text-sm text-red-800">
+          <svg class="mt-0.5 h-5 w-5 shrink-0"><use href="#i-warning"></use></svg>
+          <div>
+            <p class="font-bold">Solicitud rechazada</p>
+            <p class="mt-1">{{ reservation.rejection_reason or 'Sin observaciones registradas.' }}</p>
+          </div>
+        </div>
+      </div>
+      {% elif reservation.status == ReservationStatus.CANCELLED %}
+      <div class="border-b border-slate-200 bg-slate-50 px-5 py-4 sm:px-6">
+        <div class="flex gap-2.5 text-sm text-slate-700">
+          <svg class="mt-0.5 h-5 w-5 shrink-0"><use href="#i-x"></use></svg>
+          <div>
+            <p class="font-bold">Reunión cancelada</p>
+            <p class="mt-1">
+              {% if reservation.cancelled_at %}Cancelada el {{ reservation.cancelled_at | datetime_local }}{% endif %}
+              {% if reservation.cancelled_by %} por {{ reservation.cancelled_by.full_name }}{% endif %}.
+            </p>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </section>
+
+    <!-- Flujo -->
+    <section class="card card-pad">
+      <h2 class="section-title mb-4">Flujo de aprobación</h2>
+      <ol class="space-y-1">
+        <li class="flex gap-3">
+          <div class="flex flex-col items-center">
+            <span class="flex h-8 w-8 items-center justify-center rounded-full bg-munchy-blue text-white"><svg class="h-4 w-4"><use href="#i-check"></use></svg></span>
+            <span class="my-1 h-10 w-0.5 bg-slate-200"></span>
+          </div>
+          <div class="pb-2">
+            <p class="text-sm font-bold text-slate-800">Solicitud creada</p>
+            <p class="text-xs text-slate-500">Por {{ reservation.requester.full_name }} · {{ reservation.created_at | datetime_local }}</p>
+          </div>
+        </li>
+        <li class="flex gap-3">
+          <div class="flex flex-col items-center">
+            {% if reservation.admin_validator_id %}
+            <span class="flex h-8 w-8 items-center justify-center rounded-full bg-amber-500 text-white"><svg class="h-4 w-4"><use href="#i-check"></use></svg></span>
+            {% else %}
+            <span class="flex h-8 w-8 items-center justify-center rounded-full border-2 border-slate-200 bg-white text-xs font-bold text-slate-400">2</span>
+            {% endif %}
+            <span class="my-1 h-10 w-0.5 bg-slate-200"></span>
+          </div>
+          <div class="pb-2">
+            <p class="text-sm font-bold {% if reservation.admin_validator_id %}text-slate-800{% else %}text-slate-400{% endif %}">Validación del administrador</p>
+            <p class="text-xs text-slate-500">
+              {% if reservation.admin_validator_id %}
+                Validada por {{ reservation.admin_validator.full_name }} y enviada al jefe autorizador.
+              {% else %}
+                Pendiente de revisión de disponibilidad.
+              {% endif %}
+            </p>
+            {% if reservation.admin_note %}
+            <p class="mt-1 rounded-lg bg-slate-50 px-2.5 py-1.5 text-[11px] text-slate-600"><strong>Nota:</strong> {{ reservation.admin_note }}</p>
+            {% endif %}
+          </div>
+        </li>
+        <li class="flex gap-3">
+          <div class="flex flex-col items-center">
+            {% if reservation.status == ReservationStatus.AUTHORIZED %}
+            <span class="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500 text-white"><svg class="h-4 w-4"><use href="#i-check"></use></svg></span>
+            {% elif reservation.status == ReservationStatus.REJECTED %}
+            <span class="flex h-8 w-8 items-center justify-center rounded-full bg-red-500 text-white"><svg class="h-4 w-4"><use href="#i-x"></use></svg></span>
+            {% else %}
+            <span class="flex h-8 w-8 items-center justify-center rounded-full border-2 border-slate-200 bg-white text-xs font-bold text-slate-400">3</span>
+            {% endif %}
+          </div>
+          <div>
+            <p class="text-sm font-bold {% if reservation.status == ReservationStatus.AUTHORIZED %}text-emerald-700{% elif reservation.status == ReservationStatus.REJECTED %}text-red-700{% else %}text-slate-400{% endif %}">
+              Autorización final
+            </p>
+            <p class="text-xs text-slate-500">
+              {% if reservation.authorizer %}
+                Jefe asignado: {{ reservation.authorizer.full_name }}.
+                {% if reservation.status == ReservationStatus.AUTHORIZED %}Sala autorizada.{% elif reservation.status == ReservationStatus.PENDING_AUTHORIZER %}Esperando decisión.{% endif %}
+              {% else %}
+                El administrador designará al jefe autorizador.
+              {% endif %}
+            </p>
+            {% if reservation.authorizer_comment %}
+            <p class="mt-1 rounded-lg bg-slate-50 px-2.5 py-1.5 text-[11px] text-slate-600"><strong>Observación:</strong> {{ reservation.authorizer_comment }}</p>
+            {% endif %}
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <!-- Participantes -->
+    <section class="card card-pad">
+      <div class="mb-3 flex items-center justify-between">
+        <h2 class="section-title">Participantes invitados</h2>
+        <span class="chip">{{ reservation.participants|length }} en el sistema</span>
+      </div>
+      {% if reservation.participants %}
+      <div class="divide-y divide-slate-100">
+        {% for row in reservation.participants %}
+        <div class="flex items-center gap-3 py-3">
+          {{ avatar(row.user, 'h-9 w-9', 'text-xs') }}
+          <div class="min-w-0 flex-1">
+            <p class="truncate text-sm font-semibold text-slate-800">{{ row.user.full_name }}</p>
+            <p class="truncate text-[11px] text-slate-500">{{ row.user.position_title or 'Sin cargo' }}{% if row.user.department %} · {{ row.user.department }}{% endif %}</p>
+          </div>
+          {% if row.whatsapp_notified %}
+          <span class="badge border-emerald-200 bg-emerald-50 text-emerald-700">✅ Enviado</span>
+          {% elif row.user.phone_whatsapp %}
+          <span class="hidden text-[11px] text-slate-500 sm:inline">{{ row.user.phone_whatsapp }}</span>
+          {% else %}
+          <span class="text-[11px] text-red-500">Sin teléfono</span>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="text-sm text-slate-500">Esta solicitud no tiene participantes registrados.</p>
+      {% endif %}
+    </section>
+  </div>
+
+  <!-- Acciones -->
+  <aside class="space-y-4">
+    {% if whatsapp_ready %}
+    <section class="rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-4">
+      <div class="flex items-center gap-2 text-emerald-700">
+        <svg class="h-5 w-5"><use href="#i-whatsapp"></use></svg>
+        <h2 class="font-display text-base font-bold">Convocar participantes</h2>
+      </div>
+      <p class="mt-1.5 text-xs leading-relaxed text-emerald-800">
+        La sala está autorizada. Envía la convocatoria por WhatsApp con la cola guiada y lleva el control de enviados.
+      </p>
+      <a href="/reservations/{{ reservation.id }}/whatsapp" class="btn btn-success mt-3 w-full">
+        <svg class="h-5 w-5"><use href="#i-send"></use></svg> Abrir convocatoria
+      </a>
+      <p class="mt-2 text-center text-[11px] text-emerald-700">{{ reservation.participants_notified_count }} de {{ reservation.participants|length }} ya marcados como enviados</p>
+    </section>
+    {% endif %}
+
+    {% if is_assigned_authorizer and reservation.status == ReservationStatus.PENDING_AUTHORIZER %}
+    <section class="card card-pad">
+      <h2 class="section-title">Decisión final</h2>
+      <p class="mt-1 text-xs text-slate-500">Revisa la solicitud validada por el administrador.</p>
+      <form method="post" action="/authorizations/{{ reservation.id }}/approve" class="mt-3 space-y-2">
+        <label for="approve_comment" class="label text-xs">Observación (opcional)</label>
+        <textarea id="approve_comment" name="comment" rows="2" class="field field-sm" placeholder="Ej.: Aprobado, coordinar logística."></textarea>
+        <button type="submit" class="btn btn-success w-full">
+          <svg class="h-5 w-5"><use href="#i-check-circle"></use></svg> Autorizar sala
+        </button>
+      </form>
+      <details class="mt-2">
+        <summary class="cursor-pointer rounded-lg px-2 py-2 text-center text-xs font-semibold text-munchy-red hover:bg-red-50">Rechazar solicitud</summary>
+        <form method="post" action="/authorizations/{{ reservation.id }}/reject" class="mt-2 space-y-2" data-confirm="¿Confirmas el rechazo de esta solicitud?">
+          <textarea name="comment" rows="2" class="field field-sm" placeholder="Motivo del rechazo (opcional)"></textarea>
+          <button type="submit" class="btn btn-danger w-full btn-sm">Confirmar rechazo</button>
+        </form>
+      </details>
+    </section>
+    {% endif %}
+
+    {% if user.is_admin and reservation.status == ReservationStatus.PENDING_ADMIN %}
+    <section class="card card-pad">
+      <h2 class="section-title">Validar y escalar</h2>
+      <p class="mt-1 text-xs text-slate-500">Verifica el calendario y designa al jefe autorizador.</p>
+      {% if authorizers %}
+      <form method="post" action="/admin/requests/{{ reservation.id }}/send" class="mt-3 space-y-3">
+        <div>
+          <label for="authorizer_id" class="label text-xs">Jefe autorizador</label>
+          <select id="authorizer_id" name="authorizer_id" required class="field field-sm">
+            <option value="">Selecciona…</option>
+            {% for authorizer in authorizers %}
+            <option value="{{ authorizer.id }}">{{ authorizer.full_name }}{% if authorizer.position_title %} · {{ authorizer.position_title }}{% endif %}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label for="admin_note" class="label text-xs">Nota para el jefe (opcional)</label>
+          <textarea id="admin_note" name="note" rows="2" class="field field-sm" placeholder="Ej.: Horario verificado en calendario."></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary w-full">
+          <svg class="h-5 w-5"><use href="#i-send"></use></svg> Enviar a autorización
+        </button>
+      </form>
+      {% else %}
+      <div class="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs text-amber-900">
+        No hay jefes autorizadores activos. Crea o activa un usuario con el rol <strong>autorizador</strong>.
+      </div>
+      <a href="/admin/users/new" class="btn btn-secondary btn-sm mt-2 w-full">Crear usuario</a>
+      {% endif %}
+      <details class="mt-3">
+        <summary class="cursor-pointer rounded-lg px-2 py-2 text-center text-xs font-semibold text-munchy-red hover:bg-red-50">Rechazar solicitud</summary>
+        <form method="post" action="/admin/requests/{{ reservation.id }}/reject" class="mt-2 space-y-2" data-confirm="¿Confirmas el rechazo de esta solicitud?">
+          <textarea name="reason" rows="2" class="field field-sm" placeholder="Motivo del rechazo (opcional)"></textarea>
+          <button type="submit" class="btn btn-danger btn-sm w-full">Confirmar rechazo</button>
+        </form>
+      </details>
+    </section>
+    {% endif %}
+
+    {% if user.is_admin and reservation.status == ReservationStatus.PENDING_AUTHORIZER %}
+    <section class="card card-pad">
+      <h2 class="section-title">Reasignar autorizador</h2>
+      <p class="mt-1 text-xs text-slate-500">Actualmente: <strong>{{ reservation.authorizer.full_name if reservation.authorizer else 'Sin asignar' }}</strong></p>
+      <form method="post" action="/admin/requests/{{ reservation.id }}/reassign" class="mt-3 space-y-2">
+        <select name="authorizer_id" required class="field field-sm">
+          <option value="">Selecciona un jefe…</option>
+          {% for authorizer in authorizers %}
+          <option value="{{ authorizer.id }}">{{ authorizer.full_name }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-secondary btn-sm w-full">Reasignar</button>
+      </form>
+    </section>
+    {% endif %}
+
+    {% if can_manage and reservation.status in ReservationStatus.CANCELLABLE %}
+    <section class="card card-pad">
+      <h2 class="section-title">Cancelar reunión</h2>
+      {% if can_cancel %}
+      <p class="mt-1 text-xs text-slate-500">Faltan {{ reservation.hours_until_start | round(1) }} horas para el inicio. La cancelación libera la sala.</p>
+      <details class="mt-3">
+        <summary class="btn btn-danger w-full cursor-pointer">Cancelar reunión</summary>
+        <form method="post" action="/reservations/{{ reservation.id }}/cancel" class="mt-3 space-y-2"
+              data-confirm="¿Confirmas la cancelación de esta reunión? Esta acción no se puede deshacer.">
+          <textarea name="reason" rows="2" class="field field-sm" placeholder="Motivo de la cancelación (opcional)"></textarea>
+          <button type="submit" class="btn btn-danger w-full">Confirmar cancelación</button>
+        </form>
+      </details>
+      {% else %}
+      <div class="mt-3 flex gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
+        <svg class="mt-0.5 h-4 w-4 shrink-0"><use href="#i-clock"></use></svg>
+        <p>
+          No es posible cancelar con menos de 24 horas de anticipación.
+          {% if reservation.hours_until_start > 0 %}Faltan {{ reservation.hours_until_start | round(1) }} horas.{% endif %}
+        </p>
+      </div>
+      {% endif %}
+    </section>
+    {% endif %}
+
+    {% if not whatsapp_ready and not is_assigned_authorizer and not user.is_admin and reservation.status in (ReservationStatus.PENDING_ADMIN, ReservationStatus.PENDING_AUTHORIZER) %}
+    <section class="rounded-2xl border border-blue-100 bg-blue-50 p-4 text-xs text-blue-800">
+      <div class="flex gap-2">
+        <svg class="mt-0.5 h-4 w-4 shrink-0"><use href="#i-info"></use></svg>
+        <p>Tu solicitud está en revisión. Te notificaremos aquí cuando sea autorizada y puedas convocar a los participantes.</p>
+      </div>
+    </section>
+    {% endif %}
+
+    <!-- Auditoría -->
+    <section class="card card-pad">
+      <h2 class="section-title mb-3">Auditoría</h2>
+      <dl class="space-y-2.5 text-xs">
+        <div class="flex justify-between gap-2">
+          <dt class="text-slate-500">Solicitante</dt>
+          <dd class="text-right font-semibold text-slate-800">{{ reservation.requester.full_name }}</dd>
+        </div>
+        <div class="flex justify-between gap-2">
+          <dt class="text-slate-500">Creada</dt>
+          <dd class="text-right font-semibold text-slate-800">{{ reservation.created_at | datetime_local }}</dd>
+        </div>
+        <div class="flex justify-between gap-2">
+          <dt class="text-slate-500">Última actualización</dt>
+          <dd class="text-right font-semibold text-slate-800">{{ reservation.updated_at | datetime_local }}</dd>
+        </div>
+        <div class="flex justify-between gap-2">
+          <dt class="text-slate-500">Valida admin</dt>
+          <dd class="text-right font-semibold text-slate-800">{{ reservation.admin_validator.full_name if reservation.admin_validator else '—' }}</dd>
+        </div>
+        <div class="flex justify-between gap-2">
+          <dt class="text-slate-500">Jefe autorizador</dt>
+          <dd class="text-right font-semibold text-slate-800">{{ reservation.authorizer.full_name if reservation.authorizer else '—' }}</dd>
+        </div>
+      </dl>
+    </section>
+  </aside>
+</div>
+{% endblock %}

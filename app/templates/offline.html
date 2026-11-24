@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Sin conexión{% endblock %}
+
+{% block public_content %}
+<div class="flex min-h-screen flex-col items-center justify-center bg-slate-50 px-5 text-center">
+  <span class="flex h-16 w-16 items-center justify-center rounded-2xl bg-munchy-blue text-white shadow-soft">
+    <svg class="h-8 w-8"><use href="#i-building"></use></svg>
+  </span>
+  <p class="mt-4 font-display text-2xl font-extrabold text-munchy-ink">MunchyRoom</p>
+  <h1 class="mt-4 text-lg font-bold text-slate-800">Sin conexión a internet</h1>
+  <p class="mt-2 max-w-sm text-sm text-slate-500">
+    No pudimos cargar esta página. Verifica tu conexión y vuelve a intentarlo.
+    Las reuniones y solicitudes requieren conexión para validar la disponibilidad.
+  </p>
+  <button type="button" onclick="window.location.reload()" class="btn btn-primary mt-5">
+    <svg class="h-5 w-5"><use href="#i-arrow-right"></use></svg> Reintentar
+  </button>
+  <p class="mt-6 text-[11px] text-slate-400">Alimentos Munchy, C.A. · Hora de Venezuela (UTC-4)</p>
+</div>
+{% endblock %}

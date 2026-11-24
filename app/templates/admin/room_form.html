@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Editar sala' if room else 'Nueva sala' }}{% endblock %}
+
+{% block content %}
+<div class="mb-5">
+  <a href="/admin/rooms" class="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-500 hover:text-munchy-blue">
+    <svg class="h-4 w-4"><use href="#i-chevron-left"></use></svg> Volver a salas
+  </a>
+  <h1 class="mt-3 font-display text-2xl font-extrabold text-munchy-ink sm:text-3xl">{{ 'Editar sala' if room else 'Nueva sala' }}</h1>
+  <p class="mt-1 text-sm text-slate-500">Datos visibles en el calendario y en la solicitud de reserva.</p>
+</div>
+
+<form method="post" action="{{ '/admin/rooms/' ~ room.id if room else '/admin/rooms' }}" class="mx-auto max-w-2xl space-y-4">
+  <section class="card card-pad space-y-4">
+    <div>
+      <label for="name" class="label">Nombre de la sala</label>
+      <input id="name" name="name" type="text" required maxlength="120" value="{{ form_data.name }}" placeholder="Ej.: Sala Azul" class="field">
+    </div>
+    <div>
+      <label for="location" class="label">Ubicación</label>
+      <input id="location" name="location" type="text" maxlength="160" value="{{ form_data.location }}" placeholder="Ej.: Sede Principal · Piso 3" class="field">
+    </div>
+    <div class="grid gap-4 sm:grid-cols-2">
+      <div>
+        <label for="capacity" class="label">Capacidad máxima</label>
+        <input id="capacity" name="capacity" type="number" min="1" max="200" required value="{{ form_data.capacity }}" class="field">
+      </div>
+      <div class="flex items-end">
+        <label class="flex w-full cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+          <input type="checkbox" name="is_active" value="true" {% if form_data.is_active %}checked{% endif %}
+                 class="h-5 w-5 rounded border-slate-300 text-munchy-blue focus:ring-munchy-blue">
+          <span>
+            <span class="block text-sm font-semibold text-slate-800">Sala activa</span>
+            <span class="block text-[11px] text-slate-500">Disponible para nuevas solicitudes</span>
+          </span>
+        </label>
+      </div>
+    </div>
+    <div>
+      <label for="equipment" class="label">Equipamiento</label>
+      <textarea id="equipment" name="equipment" rows="3" maxlength="1000" placeholder="Videobeam, pantalla TV, videoconferencia, pizarra…" class="field">{{ form_data.equipment }}</textarea>
+      <p class="hint">Separa cada elemento con una coma.</p>
+    </div>
+  </section>
+
+  <div class="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+    <a href="/admin/rooms" class="btn btn-secondary">Cancelar</a>
+    <button type="submit" class="btn btn-primary">
+      <svg class="h-5 w-5"><use href="#i-check"></use></svg> {{ 'Guardar cambios' if room else 'Crear sala' }}
+    </button>
+  </div>
+</form>
+{% endblock %}

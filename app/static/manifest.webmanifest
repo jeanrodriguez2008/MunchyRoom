@@ -1,0 +1,43 @@
+{
+  "name": "MunchyRoom · Alimentos Munchy",
+  "short_name": "MunchyRoom",
+  "description": "Gestión, solicitud, validación y autorización de salas de reuniones de Alimentos Munchy, C.A.",
+  "lang": "es-VE",
+  "dir": "ltr",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait-primary",
+  "background_color": "#F4F6FB",
+  "theme_color": "#0033A0",
+  "categories": ["business", "productivity"],
+  "icons": [
+    {
+      "src": "/static/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icons/icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Calendario",
+      "short_name": "Calendario",
+      "url": "/calendar",
+      "description": "Consultar disponibilidad de salas"
+    },
+    {
+      "name": "Nueva solicitud",
+      "short_name": "Solicitar",
+      "url": "/reservations/new",
+      "description": "Solicitar una sala de reunión"
+    }
+  ]
+}

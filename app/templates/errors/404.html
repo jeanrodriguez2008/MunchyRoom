@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Página no encontrada{% endblock %}
+
+{% macro error_body() %}
+<div class="mx-auto flex min-h-[70vh] max-w-lg flex-col items-center justify-center px-5 text-center">
+  <span class="flex h-16 w-16 items-center justify-center rounded-2xl bg-munchy-blue-soft text-munchy-blue">
+    <svg class="h-8 w-8"><use href="#i-search"></use></svg>
+  </span>
+  <p class="mt-4 font-display text-3xl font-extrabold text-munchy-ink">404</p>
+  <h1 class="mt-1 text-lg font-bold text-slate-800">Página no encontrada</h1>
+  <p class="mt-2 text-sm text-slate-500">{{ detail or 'La página que buscas no existe o fue movida.' }}</p>
+  <div class="mt-5 flex gap-2">
+    <a href="/" class="btn btn-primary">Ir al inicio</a>
+    <a href="/calendar" class="btn btn-secondary">Calendario</a>
+  </div>
+</div>
+{% endmacro %}
+
+{% block content %}{{ error_body() }}{% endblock %}
+{% block public_content %}{{ error_body() }}{% endblock %}

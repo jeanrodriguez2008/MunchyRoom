@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% from "partials/ui.html" import status_badge, empty_state, reservation_meta %}
+{% block title %}Reuniones invitadas{% endblock %}
+
+{% block content %}
+<div class="mb-5">
+  <p class="text-xs font-semibold uppercase tracking-wider text-munchy-red">Mi agenda</p>
+  <h1 class="mt-1 font-display text-2xl font-extrabold text-munchy-ink sm:text-3xl">Reuniones a las que fui invitado(a)</h1>
+  <p class="mt-1 text-sm text-slate-500">Consulta las reuniones autorizadas donde participas.</p>
+</div>
+
+<section class="mb-8">
+  <h2 class="section-title mb-3">Próximas</h2>
+  {% if meetings %}
+  <div class="space-y-3">
+    {% for reservation in meetings %}
+    <a href="/reservations/{{ reservation.id }}" class="card card-pad block transition hover:border-munchy-blue/40 hover:shadow-soft">
+      <div class="flex flex-wrap items-start justify-between gap-2">
+        {{ status_badge(reservation.status) }}
+        <span class="text-[11px] font-semibold text-slate-400">{{ reservation.meeting_date | date_long }}</span>
+      </div>
+      <p class="mt-2 font-bold text-slate-900">{{ reservation.purpose }}</p>
+      <div class="mt-2">{{ reservation_meta(reservation) }}</div>
+      <p class="mt-2 text-xs text-slate-500">Organiza: <strong class="text-slate-700">{{ reservation.requester.full_name }}</strong></p>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  {{ empty_state('No tienes reuniones próximas', 'Cuando un anfitrión te incluya como participante verás la reunión aquí.', 'i-users') }}
+  {% endif %}
+</section>
+
+<section>
+  <h2 class="section-title mb-3">Anteriores</h2>
+  {% if past %}
+  <div class="card divide-y divide-slate-100">
+    {% for reservation in past %}
+    <a href="/reservations/{{ reservation.id }}" class="flex items-center gap-3 p-4 hover:bg-slate-50">
+      <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-500"><svg class="h-5 w-5"><use href="#i-calendar"></use></svg></span>
+      <div class="min-w-0 flex-1">
+        <p class="truncate text-sm font-semibold text-slate-800">{{ reservation.purpose }}</p>
+        <p class="truncate text-[11px] text-slate-500">{{ reservation.meeting_date | date_medium }} · {{ reservation.start_time | time12 }} · {{ reservation.room.name }}</p>
+      </div>
+      <svg class="h-4 w-4 shrink-0 text-slate-400"><use href="#i-chevron-right"></use></svg>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="rounded-xl border border-dashed border-slate-200 bg-white px-4 py-6 text-center text-sm text-slate-500">Aún no hay reuniones anteriores.</p>
+  {% endif %}
+</section>
+{% endblock %}

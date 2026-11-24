@@ -1,0 +1,38 @@
+{# Macros reutilizables de interfaz. #}
+{% macro status_badge(status, extra='') -%}
+{% set meta = status_meta(status) %}
+<span class="badge {{ meta.badge }} {{ extra }}">
+  <span class="h-1.5 w-1.5 rounded-full {{ meta.dot }}"></span>{{ meta.short or meta.label }}
+</span>
+{%- endmacro %}
+
+{% macro avatar(person, size='h-10 w-10', text='text-sm') -%}
+<span class="flex {{ size }} shrink-0 items-center justify-center rounded-full bg-munchy-blue-soft font-bold text-munchy-blue {{ text }}">{{ person.initials }}</span>
+{%- endmacro %}
+
+{% macro empty_state(title, text, icon='i-inbox') -%}
+<div class="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white/60 px-6 py-12 text-center">
+  <span class="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
+    <svg class="h-6 w-6"><use href="#{{ icon }}"></use></svg>
+  </span>
+  <p class="font-semibold text-slate-700">{{ title }}</p>
+  <p class="mt-1 max-w-sm text-sm text-slate-500">{{ text }}</p>
+</div>
+{%- endmacro %}
+
+{% macro reservation_meta(reservation) -%}
+<div class="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-slate-600">
+  <span class="inline-flex items-center gap-1.5">
+    <svg class="h-4 w-4 text-slate-400"><use href="#i-calendar"></use></svg>
+    {{ reservation.meeting_date | date_medium }}
+  </span>
+  <span class="inline-flex items-center gap-1.5">
+    <svg class="h-4 w-4 text-slate-400"><use href="#i-clock"></use></svg>
+    {{ reservation.start_time | time12 }} – {{ reservation.end_time | time12 }}
+  </span>
+  <span class="inline-flex items-center gap-1.5">
+    <svg class="h-4 w-4 text-slate-400"><use href="#i-building"></use></svg>
+    {{ reservation.room.name }}
+  </span>
+</div>
+{%- endmacro %}

@@ -1,0 +1,13 @@
+# Normaliza finales de línea para evitar ruido entre Windows/Linux/Render.
+* text=auto eol=lf
+
+# Binarios
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary
+*.webp binary
+
+# Archivos que deben conservar su formato
+*.bat text eol=crlf
+*.ps1 text eol=crlf

@@ -1,0 +1,109 @@
+/* MunchyRoom · estilos complementarios (Tailwind se carga por CDN con configuración corporativa). */
+
+:root {
+  --munchy-blue: #0033a0;
+  --munchy-red: #e30613;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scrollbar-gutter: stable;
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  -webkit-tap-highlight-color: transparent;
+  text-rendering: optimizeLegibility;
+}
+
+/* Oculta elementos Alpine hasta que se inicialicen. */
+[x-cloak] {
+  display: none !important;
+}
+
+/* Área táctil cómoda en móviles. */
+button,
+a,
+label,
+input[type="checkbox"],
+input[type="radio"] {
+  touch-action: manipulation;
+}
+
+/* Scroll horizontal del calendario sin barra invasiva. */
+.calendar-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+.calendar-scroll::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+.calendar-scroll::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+
+/* Mensajes de WhatsApp con saltos de línea respetados. */
+.wa-message {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Inputs de fecha/hora más homogéneos en iOS/Safari. */
+input[type="date"],
+input[type="time"] {
+  appearance: none;
+  -webkit-appearance: none;
+  min-height: 48px;
+}
+input[type="date"]::-webkit-date-and-time-value,
+input[type="time"]::-webkit-date-and-time-value {
+  text-align: left;
+}
+
+/* Foco visible accesible. */
+:focus-visible {
+  outline: 2px solid rgba(0, 51, 160, 0.55);
+  outline-offset: 2px;
+}
+
+/* Evita zoom automático de iOS en campos de texto. */
+@media (max-width: 640px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+/* Impresión del detalle de reunión. */
+@media print {
+  aside,
+  header,
+  nav,
+  footer,
+  .no-print {
+    display: none !important;
+  }
+  main {
+    padding: 0 !important;
+  }
+  .card {
+    box-shadow: none !important;
+    border-color: #cbd5e1 !important;
+  }
+  body {
+    background: #fff !important;
+  }
+}
+
+/* Animación sutil para el indicador de "verificando disponibilidad". */
+@keyframes munchy-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+.animate-soft-pulse {
+  animation: munchy-pulse 1.4s ease-in-out infinite;
+}

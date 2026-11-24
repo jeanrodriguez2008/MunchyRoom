@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% from "partials/ui.html" import status_badge, empty_state, reservation_meta %}
+{% block title %}Autorizaciones{% endblock %}
+
+{% block content %}
+<div class="mb-5">
+  <p class="text-xs font-semibold uppercase tracking-wider text-munchy-red">Aprobación final</p>
+  <h1 class="mt-1 font-display text-2xl font-extrabold text-munchy-ink sm:text-3xl">Autorizaciones pendientes</h1>
+  <p class="mt-1 text-sm text-slate-500">Solicitudes validadas por el administrador y asignadas a ti.</p>
+</div>
+
+{% if pending %}
+<div class="space-y-4">
+  {% for reservation in pending %}
+  <article class="card overflow-hidden">
+    <div class="border-b border-orange-100 bg-orange-50/60 px-4 py-3 sm:px-5">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div class="flex flex-wrap items-center gap-2">
+          {{ status_badge(reservation.status) }}
+          <span class="text-[11px] font-semibold text-slate-500">#{{ reservation.id }}</span>
+        </div>
+        <span class="text-[11px] text-slate-500">Enviada por {{ reservation.admin_validator.full_name if reservation.admin_validator else 'Administrador' }}</span>
+      </div>
+    </div>
+    <div class="p-4 sm:p-5">
+      <h2 class="text-base font-bold text-slate-900 sm:text-lg">{{ reservation.purpose }}</h2>
+      <p class="mt-1 text-sm text-slate-500">Solicita <strong class="text-slate-700">{{ reservation.requester.full_name }}</strong> · {{ reservation.requester.department or 'Sin departamento' }}</p>
+      <div class="mt-2">{{ reservation_meta(reservation) }}</div>
+      <div class="mt-2 flex flex-wrap gap-1.5">
+        <span class="chip">{{ reservation.expected_participants_count }} participantes</span>
+        <span class="chip">{{ reservation.duration_minutes | duration }}</span>
+        <span class="chip">{{ reservation.room.capacity }} personas de capacidad</span>
+      </div>
+      {% if reservation.admin_note %}
+      <p class="mt-2 rounded-lg bg-slate-50 px-3 py-2 text-[11px] text-slate-600"><strong>Nota del administrador:</strong> {{ reservation.admin_note }}</p>
+      {% endif %}
+
+      <div class="mt-4 grid gap-3 md:grid-cols-2">
+        <form method="post" action="/authorizations/{{ reservation.id }}/approve" class="rounded-xl border border-emerald-200 bg-emerald-50/40 p-3">
+          <label for="comment_{{ reservation.id }}" class="label text-xs">Observación (opcional)</label>
+          <textarea id="comment_{{ reservation.id }}" name="comment" rows="2" class="field field-sm" placeholder="Ej.: Aprobada, confirmar coffee break."></textarea>
+          <button type="submit" class="btn btn-success btn-sm mt-2 w-full">
+            <svg class="h-4 w-4"><use href="#i-check-circle"></use></svg> Autorizar sala
+          </button>
+        </form>
+        <form method="post" action="/authorizations/{{ reservation.id }}/reject" class="rounded-xl border border-red-200 bg-red-50/40 p-3"
+              data-confirm="¿Confirmas el rechazo de esta solicitud?">
+          <label for="reject_{{ reservation.id }}" class="label text-xs">Motivo del rechazo</label>
+          <textarea id="reject_{{ reservation.id }}" name="comment" rows="2" class="field field-sm" placeholder="Explica brevemente el motivo (opcional)"></textarea>
+          <button type="submit" class="btn btn-danger btn-sm mt-2 w-full">
+            <svg class="h-4 w-4"><use href="#i-x"></use></svg> Rechazar
+          </button>
+        </form>
+      </div>
+
+      <a href="/reservations/{{ reservation.id }}" class="mt-3 inline-flex text-xs font-bold text-munchy-blue hover:underline">Ver detalle completo →</a>
+    </div>
+  </article>
+  {% endfor %}
+</div>
+{% else %}
+{{ empty_state('No tienes autorizaciones pendientes', 'Cuando el administrador te asigne una solicitud validada, aparecerá aquí.', 'i-shield') }}
+{% endif %}
+
+<section class="mt-10">
+  <h2 class="section-title mb-3">Historial reciente</h2>
+  {% if history %}
+  <div class="card divide-y divide-slate-100">
+    {% for reservation in history %}
+    <a href="/reservations/{{ reservation.id }}" class="flex flex-wrap items-center gap-3 p-4 hover:bg-slate-50">
+      <div class="min-w-0 flex-1">
+        <p class="truncate text-sm font-semibold text-slate-800">{{ reservation.purpose }}</p>
+        <p class="truncate text-[11px] text-slate-500">{{ reservation.meeting_date | date_medium }} · {{ reservation.start_time | time12 }} · {{ reservation.room.name }}</p>
+      </div>
+      {{ status_badge(reservation.status) }}
+      <svg class="h-4 w-4 shrink-0 text-slate-400"><use href="#i-chevron-right"></use></svg>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="rounded-xl border border-dashed border-slate-200 bg-white px-4 py-6 text-center text-sm text-slate-500">Aún no has autorizado ni rechazado solicitudes.</p>
+  {% endif %}
+</section>
+{% endblock %}

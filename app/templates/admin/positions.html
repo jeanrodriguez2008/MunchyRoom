@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Cargos{% endblock %}
+
+{% block content %}
+<div class="mb-5">
+  <p class="text-xs font-semibold uppercase tracking-wider text-munchy-red">Administración</p>
+  <h1 class="mt-1 font-display text-2xl font-extrabold text-munchy-ink sm:text-3xl">Catálogo de cargos</h1>
+  <p class="mt-1 text-sm text-slate-500">Define cargos y su nivel jerárquico (10 = máxima jerarquía).</p>
+</div>
+
+<div class="grid gap-5 lg:grid-cols-3">
+  <section class="card card-pad lg:col-span-2">
+    <h2 class="section-title mb-3">Cargos registrados</h2>
+    {% if positions %}
+    <div class="space-y-2">
+      {% for position in positions %}
+      <div class="rounded-xl border border-slate-200 p-3 {% if not position.is_active %}opacity-60{% endif %}">
+        <form method="post" action="/admin/positions/{{ position.id }}" class="flex flex-col gap-2 sm:flex-row sm:items-end">
+          <div class="flex-1">
+            <label class="label text-[11px]" for="pos_name_{{ position.id }}">Cargo</label>
+            <input id="pos_name_{{ position.id }}" name="name" value="{{ position.name }}" required maxlength="120" class="field field-sm">
+          </div>
+          <div class="w-full sm:w-28">
+            <label class="label text-[11px]" for="pos_level_{{ position.id }}">Nivel</label>
+            <input id="pos_level_{{ position.id }}" name="hierarchy_level" type="number" min="1" max="10" value="{{ position.hierarchy_level }}" required class="field field-sm">
+          </div>
+          <div class="flex gap-1">
+            <button type="submit" class="btn btn-secondary btn-sm" title="Guardar cambios">
+              <svg class="h-4 w-4"><use href="#i-check"></use></svg>
+            </button>
+          </div>
+        </form>
+        <div class="mt-2 flex items-center justify-between gap-2">
+          <span class="text-[11px] {% if position.is_active %}text-emerald-600{% else %}text-slate-400{% endif %}">
+            {{ 'Activo' if position.is_active else 'Inactivo' }}
+          </span>
+          <form method="post" action="/admin/positions/{{ position.id }}/toggle"
+                data-confirm="¿{{ 'Desactivar' if position.is_active else 'Activar' }} el cargo «{{ position.name }}»?">
+            <button type="submit" class="btn {% if position.is_active %}btn-ghost{% else %}btn-success{% endif %} btn-sm">
+              {{ 'Desactivar' if position.is_active else 'Activar' }}
+            </button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-sm text-slate-500">No hay cargos registrados.</p>
+    {% endif %}
+  </section>
+
+  <aside>
+    <form method="post" action="/admin/positions" class="card card-pad space-y-3">
+      <h2 class="section-title">Nuevo cargo</h2>
+      <div>
+        <label for="name" class="label">Nombre</label>
+        <input id="name" name="name" type="text" required maxlength="120" class="field" placeholder="Ej.: Gerente de Planta">
+      </div>
+      <div>
+        <label for="hierarchy_level" class="label">Nivel jerárquico</label>
+        <input id="hierarchy_level" name="hierarchy_level" type="number" min="1" max="10" value="1" required class="field">
+        <p class="hint">1 = operativo · 10 = dirección general.</p>
+      </div>
+      <button type="submit" class="btn btn-primary w-full">
+        <svg class="h-5 w-5"><use href="#i-plus"></use></svg> Crear cargo
+      </button>
+    </form>
+  </aside>
+</div>
+{% endblock %}

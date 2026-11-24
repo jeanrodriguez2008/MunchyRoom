@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+{% from "partials/ui.html" import status_badge %}
+{% block title %}Convocatoria WhatsApp{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+  <a href="/reservations/{{ reservation.id }}" class="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-500 hover:text-munchy-blue">
+    <svg class="h-4 w-4"><use href="#i-chevron-left"></use></svg> Volver al detalle
+  </a>
+</div>
+
+<div x-data='whatsappQueue({{ participants_data | tojson }}, {{ reservation.id }}, {{ generic_message | tojson }}, {{ share_text | tojson }})' class="grid gap-6 lg:grid-cols-3">
+  <div class="space-y-5 lg:col-span-2">
+    <section class="rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-white p-5 sm:p-6">
+      <div class="flex flex-wrap items-center gap-2">
+        {{ status_badge(reservation.status) }}
+        <span class="chip text-emerald-700"><svg class="h-3 w-3"><use href="#i-whatsapp"></use></svg> Convocatoria habilitada</span>
+      </div>
+      <h1 class="mt-3 font-display text-2xl font-extrabold text-munchy-ink sm:text-3xl">Convocar participantes por WhatsApp</h1>
+      <p class="mt-1.5 text-sm text-slate-600">{{ reservation.purpose }}</p>
+      <div class="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-sm text-slate-600">
+        <span class="inline-flex items-center gap-1.5"><svg class="h-4 w-4 text-slate-400"><use href="#i-calendar"></use></svg> {{ reservation.meeting_date | date_long }}</span>
+        <span class="inline-flex items-center gap-1.5"><svg class="h-4 w-4 text-slate-400"><use href="#i-clock"></use></svg> {{ reservation.start_time | time12 }} – {{ reservation.end_time | time12 }}</span>
+        <span class="inline-flex items-center gap-1.5"><svg class="h-4 w-4 text-slate-400"><use href="#i-building"></use></svg> {{ reservation.room.name }}</span>
+      </div>
+    </section>
+
+    <!-- Plantilla -->
+    <section class="card card-pad">
+      <div class="mb-2 flex items-center justify-between gap-2">
+        <h2 class="section-title">Mensaje corporativo</h2>
+        <button type="button" @click="copy(genericMessage, 'message')"
+                class="btn btn-secondary btn-sm">
+          <svg class="h-4 w-4"><use href="#i-copy"></use></svg>
+          <span x-text="copied === 'message' ? '¡Copiado!' : 'Copiar mensaje'"></span>
+        </button>
+      </div>
+      <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm leading-relaxed text-slate-700 wa-message">{{ generic_message }}</div>
+      <p class="hint">El mensaje individual incluye el nombre de cada participante. Se abre WhatsApp con el texto precargado.</p>
+    </section>
+
+    <!-- Participantes -->
+    <section class="card overflow-hidden">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-100 px-4 py-3 sm:px-5">
+        <h2 class="section-title">Invitados ({{ participants_data|length }})</h2>
+        <span class="text-xs font-semibold text-emerald-700"><span x-text="sentCount"></span> enviados</span>
+      </div>
+
+      {% if participants_data %}
+      <div class="divide-y divide-slate-100">
+        <template x-for="p in participants" :key="p.row_id">
+          <div class="flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:gap-3">
+            <div class="flex min-w-0 flex-1 items-center gap-3">
+              <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-munchy-blue-soft text-xs font-bold text-munchy-blue" x-text="p.initials"></span>
+              <div class="min-w-0 flex-1">
+                <div class="flex flex-wrap items-center gap-2">
+                  <p class="truncate text-sm font-semibold text-slate-800" x-text="p.name"></p>
+                  <span x-show="p.notified" x-cloak class="badge border-emerald-200 bg-emerald-50 text-emerald-700">✅ Enviado</span>
+                </div>
+                <p class="truncate text-[11px] text-slate-500"><span x-text="p.position"></span><span x-show="p.position"> · </span><span x-text="p.department"></span></p>
+                <p class="mt-0.5 flex items-center gap-1 text-[11px] font-medium" :class="p.phone ? 'text-slate-500' : 'text-red-500'">
+                  <svg class="h-3 w-3"><use href="#i-phone"></use></svg>
+                  <span x-text="p.phone || 'Sin teléfono registrado'"></span>
+                </p>
+              </div>
+            </div>
+            <div class="flex shrink-0 items-center gap-2 pl-13 sm:pl-0">
+              <template x-if="p.link">
+                <a :href="p.link" target="_blank" rel="noopener" @click="mark(p, true)"
+                   class="btn btn-success btn-sm">
+                  <svg class="h-4 w-4"><use href="#i-whatsapp"></use></svg> Enviar WhatsApp
+                </a>
+              </template>
+              <template x-if="!p.link">
+                <span class="rounded-lg bg-red-50 px-2.5 py-1.5 text-[11px] font-semibold text-red-600">Actualiza su teléfono</span>
+              </template>
+              <button type="button" @click="mark(p, !p.notified)"
+                      class="btn btn-secondary btn-sm"
+                      :title="p.notified ? 'Desmarcar envío' : 'Marcar como enviado'">
+                <svg class="h-4 w-4" x-show="!p.notified"><use href="#i-check"></use></svg>
+                <svg class="h-4 w-4" x-show="p.notified" x-cloak><use href="#i-x"></use></svg>
+                <span x-text="p.notified ? 'Desmarcar' : 'Marcar'"></span>
+              </button>
+            </div>
+          </div>
+        </template>
+      </div>
+      {% else %}
+      <div class="p-6 text-center text-sm text-slate-500">Esta reunión no tiene participantes registrados.</div>
+      {% endif %}
+    </section>
+
+    <div x-show="error" x-cloak class="alert border-red-200 bg-red-50 text-red-800">
+      <svg class="h-5 w-5 shrink-0"><use href="#i-warning"></use></svg>
+      <p x-text="error"></p>
+    </div>
+  </div>
+
+  <!-- Panel de envío -->
+  <aside class="space-y-4">
+    <section class="card card-pad lg:sticky lg:top-6">
+      <div class="flex items-center gap-2">
+        <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600"><svg class="h-5 w-5"><use href="#i-send"></use></svg></span>
+        <div>
+          <h2 class="font-display text-base font-bold text-munchy-ink">Cola de envío</h2>
+          <p class="text-[11px] text-slate-500">Un chat a la vez, sin bloqueos</p>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="flex items-center justify-between text-xs font-semibold">
+          <span class="text-slate-500">Progreso</span>
+          <span class="text-emerald-700"><span x-text="sentCount"></span>/<span x-text="participants.length"></span></span>
+        </div>
+        <div class="mt-1.5 h-2.5 overflow-hidden rounded-full bg-slate-100">
+          <div class="h-full rounded-full bg-emerald-500 transition-all duration-300" :style="'width: ' + progress + '%'"></div>
+        </div>
+      </div>
+
+      <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3">
+        <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Siguiente</p>
+        <p class="mt-0.5 truncate text-sm font-semibold text-slate-800" x-text="nextPending ? nextPending.name : (participants.length ? 'Todos enviados 🎉' : 'Sin participantes')"></p>
+        <p class="mt-0.5 truncate text-[11px] text-slate-500" x-text="nextPending ? nextPending.phone : ''"></p>
+      </div>
+
+      <button type="button" @click="openNext()" :disabled="!nextPending"
+              class="btn btn-success mt-3 w-full">
+        <svg class="h-5 w-5"><use href="#i-send"></use></svg>
+        <span x-text="nextPending ? 'Enviar al siguiente' : 'Cola completada'"></span>
+      </button>
+      <p class="mt-2 text-center text-[11px] text-slate-500">
+        Se abrirá WhatsApp con el mensaje listo. Envía el mensaje y vuelve aquí para continuar.
+      </p>
+
+      <div class="mt-4 grid gap-2">
+        <button type="button" @click="copy(genericMessage, 'message')" class="btn btn-secondary w-full">
+          <svg class="h-5 w-5"><use href="#i-copy"></use></svg>
+          <span x-text="copied === 'message' ? '¡Mensaje copiado!' : 'Copiar mensaje'"></span>
+        </button>
+        <button type="button" @click="copy(shareText, 'share')" class="btn btn-secondary w-full">
+          <svg class="h-5 w-5"><use href="#i-copy"></use></svg>
+          <span x-text="copied === 'share' ? '¡Lista copiada!' : 'Copiar lista + mensaje'"></span>
+        </button>
+        <button type="button" @click="copyNumbers()" class="btn btn-ghost w-full">
+          <svg class="h-5 w-5"><use href="#i-phone"></use></svg>
+          <span x-text="copied === 'numbers' ? '¡Números copiados!' : 'Copiar solo números'"></span>
+        </button>
+      </div>
+
+      <div class="mt-4 rounded-xl border border-blue-100 bg-blue-50 p-3 text-[11px] leading-relaxed text-blue-800">
+        <p class="font-bold">Sugerencia para difusión</p>
+        <p class="mt-1">Copia la lista y el mensaje, y pégalos en una lista de difusión de WhatsApp. Para envíos individuales usa la cola guiada.</p>
+      </div>
+    </section>
+
+    <section class="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-[11px] leading-relaxed text-amber-900">
+      <div class="flex gap-2">
+        <svg class="mt-0.5 h-4 w-4 shrink-0"><use href="#i-warning"></use></svg>
+        <p>WhatsApp y los navegadores bloquean la apertura de varios chats automáticos. Por eso el envío es <strong>asistido</strong>: un clic por participante.</p>
+      </div>
+    </section>
+  </aside>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/whatsapp.js" defer></script>
+{% endblock %}

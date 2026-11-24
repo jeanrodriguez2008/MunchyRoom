@@ -1,0 +1,11 @@
+# Dependencias de producción de MunchyRoom (versiones exactas)
+fastapi==0.115.6
+uvicorn==0.34.0
+SQLAlchemy==2.0.36
+psycopg2-binary==2.9.9
+Jinja2==3.1.2
+python-multipart==0.0.20
+passlib==1.7.4
+python-dotenv==1.0.1
+tzdata==2026.3
+itsdangerous==2.2.0
