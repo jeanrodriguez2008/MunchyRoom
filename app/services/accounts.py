@@ -120,6 +120,10 @@ def register_user(
     if not is_corporate_email(email):
         allowed = ", ".join(f"@{domain}" for domain in settings.corporate_email_domains)
         raise AccountError(f"Debes registrarte con tu correo corporativo ({allowed}).")
+    if len(department) < 2:
+        raise AccountError("Indica a qué departamento perteneces.")
+    if len(department) > 120:
+        raise AccountError("El departamento no puede superar 120 caracteres.")
     if db.scalar(select(User.id).where(User.email == email)) is not None:
         raise AccountError(
             "Ese correo ya está registrado. Si es tuyo, usa «¿Olvidaste tu contraseña?»."

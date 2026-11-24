@@ -22,6 +22,7 @@ from app.services.accounts import (
     validate_new_password,
     verify_security_answers,
 )
+from app.services.directory import department_options
 from app.templating import flash, render
 
 router = APIRouter(prefix="/auth", tags=["Autenticación"])
@@ -171,7 +172,7 @@ def logout(request: Request):
 # Autorregistro
 # ---------------------------------------------------------------------------
 @router.get("/register", name="register_page")
-def register_page(request: Request):
+def register_page(request: Request, db: Session = Depends(get_db)):
     if request.session.get("uid"):
         return RedirectResponse("/", status_code=303)
     return render(
@@ -184,7 +185,8 @@ def register_page(request: Request):
                 "phone_whatsapp": "",
                 "department": "",
                 "questions": ["", "", ""],
-            }
+            },
+            "departments": department_options(db),
         },
     )
 
@@ -220,7 +222,12 @@ def register_submit(
             "Se alcanzó el límite de registros desde esta conexión. Inténtalo más tarde.",
             "error",
         )
-        return render(request, "auth/register.html", {"form_data": form_data}, status_code=429)
+        return render(
+            request,
+            "auth/register.html",
+            {"form_data": form_data, "departments": department_options(db)},
+            status_code=429,
+        )
 
     try:
         user = register_user(
@@ -236,7 +243,12 @@ def register_submit(
         )
     except AccountError as exc:
         flash(request, exc.message, "error")
-        return render(request, "auth/register.html", {"form_data": form_data}, status_code=400)
+        return render(
+            request,
+            "auth/register.html",
+            {"form_data": form_data, "departments": department_options(db)},
+            status_code=400,
+        )
 
     registration_limiter.register_failure(host)
     flash(

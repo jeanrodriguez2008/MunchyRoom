@@ -36,6 +36,25 @@ ROLE_SHORT = {
 }
 
 
+# Departamentos sugeridos para el registro y la gestión de usuarios.
+# La lista no es restrictiva: el administrador puede escribir uno nuevo y
+# quedará disponible como sugerencia para las próximas cuentas.
+DEFAULT_DEPARTMENTS = (
+    "Administración",
+    "Compras",
+    "Contabilidad",
+    "Producción",
+    "Ventas",
+    "Recursos Humanos",
+    "Tecnología",
+    "Logística",
+    "Mercadeo",
+    "Calidad",
+    "Mantenimiento",
+    "Dirección",
+)
+
+
 # ---------------------------------------------------------------------------
 # Preguntas de seguridad para la recuperación de contraseña
 # ---------------------------------------------------------------------------

@@ -30,7 +30,7 @@
         </div>
         <div>
           <label for="department" class="label">Departamento</label>
-          <input id="department" name="department" type="text" maxlength="120" value="{{ form_data.department }}" list="departments" class="field" placeholder="Ej.: Producción">
+          <input id="department" name="department" type="text" required maxlength="120" value="{{ form_data.department }}" list="departments" class="field" placeholder="Ej.: Producción" autocomplete="organization">
           <datalist id="departments">
             {% for department in departments %}<option value="{{ department }}"></option>{% endfor %}
           </datalist>

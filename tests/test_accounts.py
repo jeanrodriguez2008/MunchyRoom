@@ -80,6 +80,11 @@ def test_registration_requires_whatsapp_phone(db):
         register_user(db, **registration_payload(phone_whatsapp=""))
 
 
+def test_registration_requires_department(db):
+    with pytest.raises(AccountError, match="departamento"):
+        register_user(db, **registration_payload(department=""))
+
+
 def test_registration_rejects_mismatched_passwords(db):
     with pytest.raises(AccountError, match="confirmación"):
         register_user(db, **registration_payload(confirm_password="OtraClave1*"))

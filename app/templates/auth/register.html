@@ -43,10 +43,14 @@
           <p class="hint">Incluye el código de país. Se usará para convocarte a reuniones.</p>
         </div>
         <div class="sm:col-span-2">
-          <label for="department" class="label">Departamento <span class="font-normal text-slate-400">(opcional)</span></label>
-          <input id="department" name="department" type="text" maxlength="120"
-                 value="{{ form_data.department }}" autocomplete="organization-title" class="field"
-                 placeholder="Ej.: Producción, Ventas, Administración">
+          <label for="department" class="label">Departamento</label>
+          <input id="department" name="department" type="text" required maxlength="120"
+                 value="{{ form_data.department }}" list="registration-departments" class="field"
+                 placeholder="Ej.: Producción, Ventas, Administración" autocomplete="organization">
+          <datalist id="registration-departments">
+            {% for department in departments %}<option value="{{ department }}"></option>{% endfor %}
+          </datalist>
+          <p class="hint">Indica el departamento al que perteneces.</p>
         </div>
         <div>
           <label for="password" class="label">Contraseña</label>

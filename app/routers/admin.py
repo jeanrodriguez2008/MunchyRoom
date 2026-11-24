@@ -16,6 +16,7 @@ from app.database import get_db
 from app.dependencies import require_roles
 from app.models import MeetingRoom, Position, Reservation, User, UserRole, WebmasterAccount
 from app.security import hash_password, is_valid_email, normalize_phone
+from app.services.directory import department_options
 from app.services.reservations import (
     BusinessRuleError,
     reject_by_admin,
@@ -46,13 +47,7 @@ def _active_authorizers(db: Session) -> list[User]:
 
 
 def _departments(db: Session) -> list[str]:
-    rows = db.scalars(
-        select(User.department)
-        .where(User.department != "", User.id.notin_(_hidden_user_ids()))
-        .distinct()
-        .order_by(User.department)
-    ).all()
-    return [row for row in rows if row]
+    return department_options(db)
 
 
 def _positions(db: Session) -> list[Position]:
@@ -119,6 +114,10 @@ def _validate_user_payload(
         return None, "Escribe el nombre completo del usuario."
     if not is_valid_email(email):
         return None, "El correo electrónico no es válido."
+    if len(department) < 2:
+        return None, "Indica el departamento del usuario."
+    if len(department) > 120:
+        return None, "El departamento no puede superar 120 caracteres."
 
     duplicate = db.scalar(
         select(User).where(User.email == email, User.id != (current_id or 0))
