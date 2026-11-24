@@ -30,6 +30,13 @@ def dashboard(request: Request, user: User = Depends(current_user), db: Session 
                 Reservation.status == ReservationStatus.PENDING_ADMIN
             )
         ) or 0
+        # Autorregistros pendientes: activos y todavía sin roles.
+        stats["pending_users"] = db.scalar(
+            select(func.count(User.id)).where(
+                User.is_active.is_(True),
+                ~User.roles.any(),
+            )
+        ) or 0
 
     if user.has_role(Role.AUTHORIZER):
         stats["pending_authorizer"] = db.scalar(

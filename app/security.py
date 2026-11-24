@@ -5,6 +5,7 @@ from __future__ import annotations
 import re
 import threading
 import time as time_module
+import unicodedata
 from collections import defaultdict
 
 from passlib.context import CryptContext
@@ -54,6 +55,26 @@ def whatsapp_digits(phone: str | None) -> str:
 
 def is_valid_email(value: str) -> bool:
     return bool(EMAIL_RE.match((value or "").strip()))
+
+
+def normalize_answer(raw: str | None) -> str:
+    """Normaliza una respuesta de seguridad para compararla sin distinguir
+    mayúsculas, tildes, signos ni espacios repetidos."""
+    text = unicodedata.normalize("NFKD", (raw or "").strip().lower())
+    text = "".join(char for char in text if not unicodedata.combining(char))
+    text = re.sub(r"[^a-z0-9]+", " ", text)
+    return " ".join(text.split())
+
+
+def hash_answer(raw: str) -> str:
+    return hash_password(normalize_answer(raw))
+
+
+def verify_answer(raw: str | None, answer_hash: str | None) -> bool:
+    normalized = normalize_answer(raw)
+    if not normalized or not answer_hash:
+        return False
+    return verify_password(normalized, answer_hash)
 
 
 class LoginRateLimiter:

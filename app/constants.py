@@ -36,6 +36,25 @@ ROLE_SHORT = {
 }
 
 
+# ---------------------------------------------------------------------------
+# Preguntas de seguridad para la recuperación de contraseña
+# ---------------------------------------------------------------------------
+SECURITY_QUESTIONS = [
+    ("mascota", "¿Cuál es el nombre de tu primera mascota?"),
+    ("ciudad_madre", "¿En qué ciudad nació tu madre?"),
+    ("escuela", "¿Cuál es el nombre de tu escuela primaria?"),
+    ("primer_vehiculo", "¿Cuál fue tu primer vehículo?"),
+    ("comida_favorita", "¿Cuál es tu comida favorita?"),
+    ("mejor_amigo", "¿Cómo se llamaba tu mejor amigo(a) de la infancia?"),
+    ("equipo", "¿Cuál es tu equipo de fútbol favorito?"),
+    ("lugar", "¿Cuál es el lugar que más te gusta visitar?"),
+]
+SECURITY_QUESTION_MAP = dict(SECURITY_QUESTIONS)
+SECURITY_QUESTIONS_REQUIRED = 3
+SECURITY_ANSWER_MIN_LENGTH = 2
+SECURITY_ANSWER_MAX_LENGTH = 120
+
+
 class ReservationStatus:
     """Estados del flujo de doble validación."""
 

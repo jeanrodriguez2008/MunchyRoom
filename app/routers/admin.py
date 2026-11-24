@@ -78,6 +78,7 @@ def _user_form_context(db: Session, form_data: dict, target: User | None = None)
         "positions": _positions(db),
         "departments": _departments(db),
         "all_roles": [(role, ROLE_LABELS[role]) for role in Role.ALL],
+        "security_configured": bool(target and target.has_security_questions),
     }
 
 
@@ -498,6 +499,7 @@ def admin_users(
     db: Session = Depends(get_db),
     q: str = Query(""),
     role: str = Query(""),
+    estado: str = Query(""),
     page: int = Query(1, ge=1),
 ):
     q = q.strip()
@@ -516,9 +518,27 @@ def admin_users(
     if role in Role.ALL:
         stmt = stmt.join(UserRole, UserRole.user_id == User.id).where(UserRole.role_name == role)
         count_stmt = count_stmt.join(UserRole, UserRole.user_id == User.id).where(UserRole.role_name == role)
+
+    # Usuarios autorregistrados: activos y todavía sin ningún rol.
+    if estado == "pendientes":
+        filters.append(User.is_active.is_(True))
+        filters.append(~User.roles.any())
+    elif estado == "inactivos":
+        filters.append(User.is_active.is_(False))
+
     if filters:
         stmt = stmt.where(*filters)
         count_stmt = count_stmt.where(*filters)
+
+    pending_count = (
+        db.scalar(
+            select(func.count(User.id)).where(
+                User.is_active.is_(True),
+                ~User.roles.any(),
+            )
+        )
+        or 0
+    )
 
     total = db.scalar(count_stmt) or 0
     pages = max(1, math.ceil(total / 20))
@@ -537,6 +557,8 @@ def admin_users(
             "users": users,
             "q": q,
             "selected_role": role,
+            "selected_estado": estado,
+            "pending_count": pending_count,
             "page": page,
             "pages": pages,
             "total": total,
@@ -748,6 +770,37 @@ def admin_user_toggle(
         "success",
     )
     return RedirectResponse("/admin/users", status_code=303)
+
+
+@router.post("/users/{user_id}/reject", name="admin_user_reject")
+def admin_user_reject(
+    request: Request,
+    user_id: int,
+    admin: User = Depends(require_roles(Role.ADMIN)),
+    db: Session = Depends(get_db),
+):
+    """Rechaza un autorregistro que aún no tiene roles asignados."""
+    target = db.get(User, user_id)
+    if target is None:
+        raise HTTPException(status_code=404, detail="El usuario no existe.")
+    if not target.is_pending_roles:
+        flash(
+            request,
+            "Este usuario ya tiene roles asignados. Para retirarlo, edita sus roles o desactívalo.",
+            "error",
+        )
+        return RedirectResponse("/admin/users", status_code=303)
+    if target.id == admin.id:
+        flash(request, "No puedes rechazar tu propio usuario.", "error")
+        return RedirectResponse("/admin/users", status_code=303)
+
+    target.is_active = False
+    flash(
+        request,
+        f"Registro de {target.full_name} rechazado. La cuenta quedó inactiva y no podrá ingresar.",
+        "success",
+    )
+    return RedirectResponse("/admin/users?estado=pendientes", status_code=303)
 
 
 # ---------------------------------------------------------------------------

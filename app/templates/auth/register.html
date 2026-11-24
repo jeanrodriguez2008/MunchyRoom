@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}Crear cuenta{% endblock %}
+
+{% block public_content %}
+<div class="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 lg:py-10">
+  <div class="mb-6 text-center">
+    <span class="badge border-blue-200 bg-blue-50 text-munchy-blue">Registro corporativo</span>
+    <h1 class="mt-3 font-display text-2xl font-extrabold text-munchy-ink sm:text-3xl">Crea tu cuenta</h1>
+    <p class="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-slate-500">
+      Registra tu correo corporativo y tu WhatsApp. Un administrador revisará tu solicitud
+      y te asignará los roles que necesites.
+    </p>
+  </div>
+
+  <form method="post" action="/auth/register" class="space-y-4" autocomplete="on">
+    <section class="card card-pad space-y-4 sm:p-6">
+      <div>
+        <h2 class="section-title flex items-center gap-2">
+          <svg class="h-5 w-5 text-munchy-blue"><use href="#i-users"></use></svg> Datos corporativos
+        </h2>
+        <p class="mt-1 text-xs leading-relaxed text-slate-500">
+          Solo se aceptan correos
+          {% for domain in corporate_domains %}<strong class="text-slate-700">@{{ domain }}</strong>{% if not loop.last %} o {% endif %}{% endfor %}.
+        </p>
+      </div>
+
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div class="sm:col-span-2">
+          <label for="full_name" class="label">Nombre y apellido</label>
+          <input id="full_name" name="full_name" type="text" required minlength="3" maxlength="160"
+                 value="{{ form_data.full_name }}" autocomplete="name" class="field" placeholder="Ej.: Ana Pérez">
+        </div>
+        <div>
+          <label for="email" class="label">Correo corporativo</label>
+          <input id="email" name="email" type="email" inputmode="email" required maxlength="200"
+                 value="{{ form_data.email }}" autocomplete="email" class="field" placeholder="nombre@munchy.com">
+        </div>
+        <div>
+          <label for="phone_whatsapp" class="label">Teléfono con WhatsApp</label>
+          <input id="phone_whatsapp" name="phone_whatsapp" type="tel" inputmode="tel" required
+                 value="{{ form_data.phone_whatsapp }}" autocomplete="tel" class="field"
+                 placeholder="+584121234567">
+          <p class="hint">Incluye el código de país. Se usará para convocarte a reuniones.</p>
+        </div>
+        <div class="sm:col-span-2">
+          <label for="department" class="label">Departamento <span class="font-normal text-slate-400">(opcional)</span></label>
+          <input id="department" name="department" type="text" maxlength="120"
+                 value="{{ form_data.department }}" autocomplete="organization-title" class="field"
+                 placeholder="Ej.: Producción, Ventas, Administración">
+        </div>
+        <div>
+          <label for="password" class="label">Contraseña</label>
+          <input id="password" name="password" type="password" required minlength="8"
+                 autocomplete="new-password" class="field" placeholder="Mínimo 8 caracteres">
+        </div>
+        <div>
+          <label for="confirm_password" class="label">Confirmar contraseña</label>
+          <input id="confirm_password" name="confirm_password" type="password" required minlength="8"
+                 autocomplete="new-password" class="field" placeholder="Repite la contraseña">
+        </div>
+      </div>
+    </section>
+
+    <section class="card card-pad space-y-4 sm:p-6">
+      <div>
+        <h2 class="section-title flex items-center gap-2">
+          <svg class="h-5 w-5 text-munchy-blue"><use href="#i-shield"></use></svg> Preguntas de seguridad
+        </h2>
+        <p class="mt-1 text-xs leading-relaxed text-slate-500">
+          Elige tres preguntas diferentes. Tus respuestas se guardan cifradas y solo se usan
+          para recuperar tu contraseña si la olvidas. No distingue mayúsculas ni tildes.
+        </p>
+      </div>
+
+      <div class="space-y-3">
+        {% for index in range(3) %}
+        <div class="rounded-xl border border-slate-200 bg-slate-50/70 p-3.5">
+          <label for="question_{{ index + 1 }}" class="label text-xs">Pregunta {{ index + 1 }}</label>
+          <select id="question_{{ index + 1 }}" name="question" required class="field field-sm">
+            <option value="">— Selecciona una pregunta —</option>
+            {% for key, text in SECURITY_QUESTIONS %}
+            <option value="{{ key }}" {% if form_data.questions[index] == key %}selected{% endif %}>{{ text }}</option>
+            {% endfor %}
+          </select>
+          <label for="answer_{{ index + 1 }}" class="label mt-3 text-xs">Respuesta {{ index + 1 }}</label>
+          <input id="answer_{{ index + 1 }}" name="answer" type="text" required minlength="2" maxlength="120"
+                 autocomplete="off" class="field field-sm" placeholder="Escribe tu respuesta">
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <div class="alert border-blue-200 bg-blue-50 text-blue-900">
+      <svg class="h-5 w-5 shrink-0"><use href="#i-info"></use></svg>
+      <p>
+        Tu cuenta se crea <strong>pendiente de aprobación</strong>. Podrás iniciar sesión cuando
+        un administrador te asigne al menos un rol (participante, solicitante, autorizador o administrador).
+      </p>
+    </div>
+
+    <button type="submit" class="btn btn-primary w-full">
+      <svg class="h-5 w-5"><use href="#i-check"></use></svg> Enviar registro
+    </button>
+
+    <p class="text-center text-xs text-slate-500">
+      ¿Ya tienes cuenta?
+      <a href="/auth/login" class="font-semibold text-munchy-blue hover:underline">Inicia sesión</a>
+    </p>
+  </form>
+</div>
+{% endblock %}

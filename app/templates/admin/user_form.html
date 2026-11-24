@@ -65,7 +65,16 @@
 
     <section class="card card-pad">
       <h2 class="section-title">Roles del sistema</h2>
-      <p class="mt-1 text-xs text-slate-500">Selecciona todos los que apliquen. Los permisos se acumulan.</p>
+      <p class="mt-1 text-xs text-slate-500">
+        Selecciona todos los que apliquen; los permisos se acumulan. Por ejemplo, un participante
+        también puede ser solicitante, autorizador o incluso administrador.
+      </p>
+      {% if target and not target.roles %}
+      <div class="alert mt-3 border-amber-200 bg-amber-50 text-amber-900">
+        <svg class="h-5 w-5 shrink-0"><use href="#i-warning"></use></svg>
+        <p>Este usuario se autorregistró y aún no tiene roles. Al guardar con al menos un rol podrá iniciar sesión.</p>
+      </div>
+      {% endif %}
       <div class="mt-3 grid gap-2 sm:grid-cols-2">
         {% for role, label in all_roles %}
         <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 p-3 transition hover:border-munchy-blue/40 hover:bg-slate-50">
@@ -101,9 +110,23 @@
       <ul class="mt-1.5 list-disc space-y-1 pl-4">
         <li>Asigna <strong>autorizador</strong> solo a jefes con potestad de aprobación final.</li>
         <li>El rol <strong>participante</strong> habilita al usuario para ser invitado.</li>
+        <li>Un mismo usuario puede acumular varios roles, incluido <strong>administrador</strong>.</li>
         <li>El teléfono debe incluir el código de país para WhatsApp.</li>
       </ul>
     </section>
+
+    {% if target %}
+    <section class="card p-4 text-xs {% if security_configured %}text-slate-600{% else %}border-amber-200 bg-amber-50 text-amber-900{% endif %}">
+      <p class="font-bold">Preguntas de seguridad</p>
+      <p class="mt-1">
+        {% if security_configured %}
+        Configuradas. El usuario puede restablecer su contraseña desde el login.
+        {% else %}
+        Sin configurar. El usuario debe crearlas en <strong>Cambiar contraseña</strong> para poder recuperar su clave.
+        {% endif %}
+      </p>
+    </section>
+    {% endif %}
 
     <div class="flex flex-col gap-2">
       <button type="submit" class="btn btn-primary w-full">

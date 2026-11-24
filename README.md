@@ -21,11 +21,12 @@ Construido con **FastAPI + Jinja2 + Tailwind CSS + Alpine.js** sobre **PostgreSQ
 11. [Paso 2 · Subir el proyecto a GitHub](#11-paso-2--subir-el-proyecto-a-github)
 12. [Paso 3 · Desplegar en Render](#12-paso-3--desplegar-en-render)
 13. [Primer ingreso y seed inicial](#13-primer-ingreso-y-seed-inicial)
-14. [Módulo de convocatoria por WhatsApp](#14-módulo-de-convocatoria-por-whatsapp)
-15. [Pruebas automatizadas](#15-pruebas-automatizadas)
-16. [Seguridad](#16-seguridad)
-17. [Solución de problemas](#17-solución-de-problemas)
-18. [Mantenimiento y respaldo](#18-mantenimiento-y-respaldo)
+14. [Autorregistro, aprobación y recuperación de contraseña](#14-autorregistro-aprobación-y-recuperación-de-contraseña)
+15. [Módulo de convocatoria por WhatsApp](#15-módulo-de-convocatoria-por-whatsapp)
+16. [Pruebas automatizadas](#16-pruebas-automatizadas)
+17. [Seguridad](#17-seguridad)
+18. [Solución de problemas](#18-solución-de-problemas)
+19. [Mantenimiento y respaldo](#19-mantenimiento-y-respaldo)
 
 ---
 
@@ -39,6 +40,8 @@ Construido con **FastAPI + Jinja2 + Tailwind CSS + Alpine.js** sobre **PostgreSQ
 - **Regla de cancelación de 24 horas** validada en servidor e interfaz.
 - **Convocatoria por WhatsApp** con mensaje corporativo, enlaces individuales `wa.me`, cola de envío asistida y copia de lista/mensaje para difusión.
 - **Multi-rol real**: un usuario puede ser solicitante, autorizador, participante y administrador a la vez.
+- **Autorregistro corporativo**: el personal crea su cuenta con correo `@munchy.com` y teléfono WhatsApp; queda pendiente hasta que un administrador le asigne uno o varios roles.
+- **Recuperación de contraseña** mediante preguntas de seguridad configuradas por el propio usuario (respuestas cifradas).
 - **Zona horaria estricta `America/Caracas` (UTC-4)** en toda la lógica.
 - **Seed idempotente**: 3 salas, catálogo de cargos y administrador inicial.
 - **Seguridad**: sesiones firmadas, hash `pbkdf2_sha256`, límite de intentos de login, guardia de mismo origen (CSRF), cabeceras de seguridad y cambio obligatorio de contraseña inicial.
@@ -105,12 +108,15 @@ MunchyRoom/
 │   ├── services/
 │   │   ├── availability.py     # Consultas de solapamiento
 │   │   ├── reservations.py     # Reglas de negocio del flujo
+│   │   ├── accounts.py         # Autorregistro y preguntas de seguridad
 │   │   └── whatsapp.py         # Mensajes y enlaces wa.me
 │   ├── templates/              # Vistas Jinja2 (mobile-first)
-│   └── static/                 # CSS, JS, iconos, manifest, service worker
+│   │   └── auth/               # Login, registro, recuperación, contraseña
+│   └── static/                 # CSS, JS, iconos, imágenes, manifest, service worker
 ├── tests/
 │   ├── conftest.py             # SQLite en memoria (nunca toca Neon)
-│   └── test_business_rules.py  # 17 pruebas de reglas críticas
+│   ├── test_business_rules.py  # Pruebas de reglas críticas
+│   └── test_accounts.py        # Registro y preguntas de seguridad
 ├── seed.py                     # CLI de inicialización
 ├── requirements.txt
 ├── requirements-dev.txt
@@ -172,7 +178,9 @@ Recibe únicamente las solicitudes asignadas a él y ejecuta **Autorizar sala** 
 | `autorizador` | Aprueba o rechaza las solicitudes que le asigna el administrador. |
 | `participante` | Puede ser invitado y consultar sus próximas reuniones. |
 
-Un usuario puede tener **varios roles simultáneamente**. Los permisos se acumulan.
+Un usuario puede tener **varios roles simultáneamente**. Los permisos se acumulan. Por ejemplo, una persona puede ser `participante + solicitante`, y un administrador también puede tener roles operativos.
+
+Los usuarios que se autorregistran nacen **sin roles**; el administrador los asigna desde **Usuarios** para aprobar su acceso.
 
 ---
 
@@ -252,8 +260,13 @@ python -c "import secrets; print(secrets.token_urlsafe(64))"
 | `SEED_ADMIN_EMAIL` | No | Correo del admin inicial. | `admin@munchy.com` |
 | `SEED_ADMIN_PASSWORD` | No | Contraseña del admin inicial. | `MunchyAdmin2026*` |
 | `SEED_ADMIN_NAME` | No | Nombre visible del admin inicial. | `Administrador MunchyRoom` |
+| `CORPORATE_EMAIL_DOMAINS` | No | Dominios permitidos en el autorregistro, separados por coma. | `munchy.com` |
 | `LOGIN_MAX_ATTEMPTS` | No | Intentos fallidos antes de bloquear. | `8` |
 | `LOGIN_WINDOW_SECONDS` | No | Ventana del bloqueo en segundos. | `300` |
+| `RECOVERY_MAX_ATTEMPTS` | No | Intentos de respuesta de seguridad antes de bloquear. | `5` |
+| `RECOVERY_WINDOW_SECONDS` | No | Ventana del bloqueo de recuperación. | `900` |
+| `REGISTRATION_MAX_ATTEMPTS` | No | Registros permitidos por IP en la ventana. | `20` |
+| `REGISTRATION_WINDOW_SECONDS` | No | Ventana del límite de registros. | `3600` |
 | `SESSION_MAX_AGE` | No | Duración de la sesión en segundos. | `28800` |
 | `DEBUG` | No | Logs detallados y pista de credenciales en login. | `false` |
 
@@ -402,18 +415,58 @@ El administrador inicial tiene los roles `admin` y `solicitante`, y **debe cambi
 
 ### Puesta en marcha recomendada
 
-1. Inicia sesión con `admin@munchy.com` y cambia la contraseña.
-2. **Usuarios** → crea al personal:
+1. Inicia sesión con `admin@munchy.com`, cambia la contraseña y configura tus **preguntas de seguridad** en `Cambiar contraseña`.
+2. **Usuarios** → revisa los registros pendientes (usuarios autorregistrados sin roles) y asígnales uno o varios roles:
    - Asigna el rol `autorizador` a los jefes con potestad de aprobación final.
    - Asigna `participante` a todo el que pueda ser convocado.
+   - Un mismo usuario puede acumular `participante + solicitante`, o incluso `admin`.
    - Registra el teléfono en formato internacional: `+584121234567`.
 3. **Salas** → ajusta capacidad, ubicación y equipamiento de las 3 salas (o crea más).
 4. **Cargos** → ajusta el catálogo y la jerarquía.
-5. Comparte la URL con el personal.
+5. Comparte la URL con el personal para que se registre.
 
 ---
 
-## 14. Módulo de convocatoria por WhatsApp
+## 14. Autorregistro, aprobación y recuperación de contraseña
+
+### Registro de nuevos usuarios
+
+Desde el login, el enlace **Registrarme** abre `/auth/register`. El formulario solicita:
+
+| Campo | Regla |
+|---|---|
+| Nombre y apellido | Mínimo 3 caracteres |
+| Correo corporativo | Dominio permitido en `CORPORATE_EMAIL_DOMAINS` (por defecto `@munchy.com`) |
+| Teléfono WhatsApp | Obligatorio, formato internacional `+584121234567` |
+| Departamento | Opcional |
+| Contraseña y confirmación | Mínimo 8 caracteres |
+| 3 preguntas de seguridad | Deben ser diferentes; las respuestas se guardan cifradas |
+
+La cuenta se crea **activa pero sin roles**. Mientras no tenga roles:
+
+- No puede iniciar sesión (el login muestra el aviso de registro pendiente).
+- Aparece en **Administración → Usuarios** con la etiqueta **Pendiente de roles**.
+- El administrador puede **Asignar roles** o **Rechazar** el registro (lo deja inactivo).
+
+### Aprobación y asignación de roles
+
+1. Entra como administrador a **Usuarios**. El aviso superior indica cuántos registros están pendientes.
+2. Pulsa **Ver pendientes** o filtra por estado **Pendientes de roles**.
+3. Pulsa **Asignar roles**, marca uno o varios roles y guarda. Los permisos se acumulan.
+4. Al guardar con al menos un rol, el usuario ya puede iniciar sesión con la contraseña que eligió.
+
+### Recuperación de contraseña
+
+1. En el login, pulsa **¿Olvidaste tu contraseña?**.
+2. Escribe el correo corporativo. Si la cuenta está activa y tiene preguntas configuradas, se muestran sus 3 preguntas.
+3. Responde (no distingue mayúsculas, tildes ni signos) y define la nueva contraseña.
+4. El proceso caduca a los 15 minutos y limita los intentos fallidos.
+
+> **Importante:** los usuarios creados antes de esta versión no tienen preguntas configuradas. Deben entrar en **Cambiar contraseña → Preguntas de seguridad** (o el administrador puede restablecer su clave desde **Usuarios → Editar**).
+
+---
+
+## 15. Módulo de convocatoria por WhatsApp
 
 Se habilita **solo** cuando la reunión está `AUTORIZADA`, para el solicitante o un administrador.
 
@@ -429,13 +482,13 @@ Incluye:
 
 ---
 
-## 15. Pruebas automatizadas
+## 16. Pruebas automatizadas
 
 ```bash
 python -m pytest -q
 ```
 
-Resultado esperado: **17 passed**.
+Resultado esperado: **27 passed**.
 
 Las pruebas usan **SQLite en memoria** (`tests/conftest.py` define `DATABASE_URL` antes de importar la app), por lo que **nunca tocan la base de datos de Neon**.
 
@@ -443,6 +496,11 @@ Cobertura de reglas:
 
 - Seed idempotente (3 salas, 6 cargos, admin con `must_change_password`).
 - Multi-rol por usuario.
+- Autorregistro con correo corporativo y WhatsApp obligatorio.
+- Cuenta autorregistrada sin roles (pendiente de aprobación).
+- Rechazo de correos externos y de duplicados.
+- Preguntas de seguridad distintas y respuestas normalizadas (mayúsculas/tildes).
+- Reemplazo de preguntas exigiendo la contraseña actual.
 - Normalización de teléfonos internacionales.
 - Estado inicial `PENDIENTE_ADMIN` y cálculo de hora de fin.
 - Capacidad de sala y coherencia de participantes.
@@ -462,12 +520,14 @@ Además se validó de extremo a extremo contra la base real de Neon: login → c
 
 ---
 
-## 16. Seguridad
+## 17. Seguridad
 
 - **Contraseñas**: `pbkdf2_sha256` (passlib), nunca en texto plano.
 - **Sesiones**: cookie firmada `munchyroom_session`, `HttpOnly`, `SameSite=Lax`, `Secure` en producción, expiración configurable.
 - **Rate limit de login**: bloqueo por `IP + correo` tras `LOGIN_MAX_ATTEMPTS` fallos.
 - **Mensajes genéricos** en login para no revelar si un correo existe.
+- **Autorregistro restringido** a dominios corporativos configurados y aprobado por un administrador antes de habilitar el acceso.
+- **Preguntas de seguridad**: respuestas hasheadas con `pbkdf2_sha256`, normalizadas y con límite de intentos de recuperación.
 - **CSRF**: middleware que rechaza `POST/PUT/PATCH/DELETE` cuyo `Origin`/`Referer` no coincida con el host.
 - **Cabeceras**: `X-Content-Type-Options`, `X-Frame-Options: DENY`, `Referrer-Policy`, `Permissions-Policy`, `Content-Security-Policy` y `Strict-Transport-Security` en producción.
 - **Redirecciones abiertas**: `next` solo acepta rutas internas.
@@ -483,7 +543,7 @@ Además se validó de extremo a extremo contra la base real de Neon: login → c
 
 ---
 
-## 17. Solución de problemas
+## 18. Solución de problemas
 
 ### `ModuleNotFoundError: No module named 'app'`
 Ejecuta los comandos desde la raíz del proyecto (donde está `app/`). Si usas un script externo, define `PYTHONPATH` a la raíz.
@@ -514,7 +574,7 @@ Sube el número de versión en `app/static/sw.js` (`CACHE_NAME`) y recarga. En d
 
 ---
 
-## 18. Mantenimiento y respaldo
+## 19. Mantenimiento y respaldo
 
 - **Respaldo**: Neon ofrece *Point-in-time restore* y ramas. Programa exportaciones periódicas con `pg_dump` si tu política lo exige:
   ```bash

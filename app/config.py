@@ -60,9 +60,29 @@ class Settings:
         self.seed_admin_password: str = os.getenv("SEED_ADMIN_PASSWORD", "MunchyAdmin2026*")
         self.seed_admin_name: str = os.getenv("SEED_ADMIN_NAME", "Administrador MunchyRoom")
 
+        # Dominios corporativos permitidos para el autorregistro.
+        raw_domains = os.getenv("CORPORATE_EMAIL_DOMAINS", "munchy.com")
+        self.corporate_email_domains: tuple[str, ...] = tuple(
+            domain.strip().lower().lstrip("@")
+            for domain in raw_domains.split(",")
+            if domain.strip()
+        ) or ("munchy.com",)
+
         # Límite de intentos de login (protección básica contra fuerza bruta).
         self.login_max_attempts: int = int(os.getenv("LOGIN_MAX_ATTEMPTS", "8"))
         self.login_window_seconds: int = int(os.getenv("LOGIN_WINDOW_SECONDS", "300"))
+
+        # Límite de intentos de recuperación de contraseña.
+        self.recovery_max_attempts: int = int(os.getenv("RECOVERY_MAX_ATTEMPTS", "5"))
+        self.recovery_window_seconds: int = int(os.getenv("RECOVERY_WINDOW_SECONDS", "900"))
+
+        # Límite de registros por hora desde una misma IP.
+        self.registration_max_attempts: int = int(os.getenv("REGISTRATION_MAX_ATTEMPTS", "20"))
+        self.registration_window_seconds: int = int(os.getenv("REGISTRATION_WINDOW_SECONDS", "3600"))
+
+    @property
+    def primary_corporate_domain(self) -> str:
+        return self.corporate_email_domains[0]
 
     @property
     def is_production(self) -> bool:

@@ -1,11 +1,12 @@
 """Modelos de datos (PostgreSQL / SQLAlchemy 2.0).
 
-Tablas: users, user_roles, positions, meeting_rooms, reservations,
-reservation_participants.
+Tablas: users, user_roles, user_security_answers, positions, meeting_rooms,
+reservations, reservation_participants.
 
 Reglas de integridad relevantes:
 - email único por usuario.
 - un usuario no puede repetir el mismo rol (UNIQUE user_id + role_name).
+- un usuario no puede repetir la misma pregunta de seguridad.
 - un participante no puede repetirse dentro de la misma reserva.
 - índice compuesto para consultas de solapamiento por sala/fecha/estado.
 """
@@ -30,7 +31,14 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.constants import CANCELLATION_MIN_HOURS, ROLE_LABELS, Role, ReservationStatus, STATUS_META
+from app.constants import (
+    CANCELLATION_MIN_HOURS,
+    ROLE_LABELS,
+    SECURITY_QUESTIONS_REQUIRED,
+    Role,
+    ReservationStatus,
+    STATUS_META,
+)
 from app.database import Base
 from app.timeutils import combine_caracas, hours_until, utc_now
 
@@ -59,6 +67,12 @@ class User(Base):
         back_populates="user", cascade="all, delete-orphan", lazy="selectin"
     )
     position: Mapped["Position | None"] = relationship(lazy="joined")
+    security_answers: Mapped[list["UserSecurityAnswer"]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+        order_by="UserSecurityAnswer.id",
+    )
 
     def has_role(self, role_name: str) -> bool:
         return any(role.role_name == role_name for role in self.roles)
@@ -78,6 +92,15 @@ class User(Base):
     @property
     def is_admin(self) -> bool:
         return self.has_role(Role.ADMIN)
+
+    @property
+    def has_security_questions(self) -> bool:
+        return len(self.security_answers) >= SECURITY_QUESTIONS_REQUIRED
+
+    @property
+    def is_pending_roles(self) -> bool:
+        """Un autorregistro queda pendiente hasta que un administrador asigne roles."""
+        return not self.roles
 
     @property
     def initials(self) -> str:
@@ -107,6 +130,35 @@ class UserRole(Base):
     role_name: Mapped[str] = mapped_column(String(20), nullable=False)
 
     user: Mapped[User] = relationship(back_populates="roles")
+
+
+class UserSecurityAnswer(Base):
+    """Respuestas de seguridad (hasheadas) para recuperar la contraseña.
+
+    Las respuestas nunca se almacenan en texto plano. La normalización y el
+    hash se realizan en ``app.security`` para compararlas sin distinguir
+    mayúsculas, tildes ni signos.
+    """
+
+    __tablename__ = "user_security_answers"
+    __table_args__ = (
+        UniqueConstraint("user_id", "question_key", name="uq_user_security_answers_user_question"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=False
+    )
+    question_key: Mapped[str] = mapped_column(String(40), nullable=False)
+    answer_hash: Mapped[str] = mapped_column(String(255), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=utc_now, server_default=func.now(), nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=utc_now, onupdate=utc_now, nullable=False
+    )
+
+    user: Mapped[User] = relationship(back_populates="security_answers")
 
 
 class Position(Base):
