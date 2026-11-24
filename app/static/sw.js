@@ -1,8 +1,11 @@
 /* MunchyRoom · Service Worker (PWA).
    Estrategia: network-first para navegación (nunca cachea HTML autenticado),
-   cache-first para estáticos propios y fallback offline. */
-const CACHE_NAME = "munchyroom-v6";
+   cache-first para estáticos propios, pantalla de "servidor en descanso"
+   cuando Render tarda en despertar y fallback offline. */
+const CACHE_NAME = "munchyroom-v7";
 const OFFLINE_URL = "/offline";
+const WAKE_URL = "/static/wake.html";
+const WAKE_TIMEOUT_MS = 9000;
 const PRECACHE = [
   "/static/css/app.css",
   "/static/js/app.js",
@@ -15,6 +18,7 @@ const PRECACHE = [
   "/static/img/logo.png",
   "/static/img/logo-white.png",
   "/static/img/logoJR.png",
+  "/static/wake.html",
   "/manifest.webmanifest",
   OFFLINE_URL
 ];
@@ -39,6 +43,76 @@ self.addEventListener("activate", (event) => {
   );
 });
 
+async function cachedPage(url, fallbackHtml) {
+  const cached = await caches.match(url);
+  if (cached) return cached;
+  return new Response(fallbackHtml, {
+    status: 503,
+    headers: { "Content-Type": "text/html; charset=utf-8" }
+  });
+}
+
+function offlineFallback() {
+  return cachedPage(
+    OFFLINE_URL,
+    '<!doctype html><html lang="es"><meta charset="utf-8"><title>Sin conexión</title><body style="font-family:sans-serif;padding:2rem;color:#0b1b3a"><h1>Sin conexión</h1><p>Verifica tu internet y vuelve a intentarlo.</p></body></html>'
+  );
+}
+
+function wakeFallback() {
+  return cachedPage(
+    WAKE_URL,
+    '<!doctype html><html lang="es"><meta charset="utf-8"><title>Servidor en descanso</title><body style="font-family:sans-serif;padding:2rem;color:#0b1b3a"><h1>Servidor en descanso</h1><p>El servicio está iniciando. Recarga la página en un minuto.</p></body></html>'
+  );
+}
+
+/**
+ * Navegación:
+ * - Si Render devuelve su pantalla de arranque, se sustituye por la pantalla
+ *   propia de MunchyRoom con cuenta regresiva.
+ * - Si la petición tarda demasiado, se muestra esa misma pantalla.
+ * - Un fallo de red real conserva la página offline.
+ */
+async function handleNavigation(request) {
+  let timedOut = false;
+  let timer = null;
+
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(() => {
+      timedOut = true;
+      reject(new Error("timeout"));
+    }, WAKE_TIMEOUT_MS);
+  });
+
+  try {
+    const response = await Promise.race([fetch(request), timeout]);
+    clearTimeout(timer);
+    if (!response) return wakeFallback();
+
+    if (response.status === 502 || response.status === 503 || response.status === 504) {
+      return wakeFallback();
+    }
+
+    const contentType = response.headers.get("content-type") || "";
+    if (response.status === 200 && contentType.includes("text/html")) {
+      const text = (await response.clone().text()).toUpperCase();
+      if (
+        text.includes("SERVICE WAKING UP") ||
+        text.includes("ALLOCATING COMPUTE RESOURCES") ||
+        text.includes("WELCOME TO RENDER")
+      ) {
+        return wakeFallback();
+      }
+    }
+
+    return response;
+  } catch (error) {
+    clearTimeout(timer);
+    if (timedOut) return wakeFallback();
+    return offlineFallback();
+  }
+}
+
 self.addEventListener("fetch", (event) => {
   const request = event.request;
   if (request.method !== "GET") return;
@@ -46,18 +120,9 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
-  // Navegación: red primero; si falla, página offline.
+  // Navegación: red primero, con pantalla de servidor en descanso.
   if (request.mode === "navigate") {
-    event.respondWith(
-      fetch(request)
-        .then((response) => response)
-        .catch(() =>
-          caches.match(OFFLINE_URL).then((cached) => cached || new Response("Sin conexión", {
-            status: 503,
-            headers: { "Content-Type": "text/plain; charset=utf-8" }
-          }))
-        )
-    );
+    event.respondWith(handleNavigation(request));
     return;
   }
 

@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#0033A0">
+  <title>Servidor en Descanso · MunchyRoom</title>
+  <style>
+    :root {
+      --blue: #0033a0;
+      --blue-dark: #00246f;
+      --blue-soft: #eef3ff;
+      --red: #e30613;
+      --ink: #0b1b3a;
+      --muted: #64748b;
+      --line: #dbe3f0;
+    }
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: grid;
+      place-items: center;
+      padding: 24px 18px;
+      color: var(--ink);
+      font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      background:
+        radial-gradient(circle at 88% 10%, rgba(255,255,255,.10) 0 25%, transparent 26%),
+        radial-gradient(circle at 8% 92%, rgba(227,6,19,.24) 0 24%, transparent 25%),
+        linear-gradient(145deg, #0033a0 0%, #00246f 72%, #001a52 100%);
+    }
+    .card {
+      width: 100%;
+      max-width: 430px;
+      background: #fff;
+      border-radius: 26px;
+      padding: 30px 24px 24px;
+      text-align: center;
+      box-shadow: 0 30px 70px -30px rgba(0, 20, 70, .65), 0 2px 0 rgba(255,255,255,.6) inset;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 11px;
+      margin-bottom: 22px;
+    }
+    .emblem {
+      width: 46px;
+      height: 46px;
+      flex-shrink: 0;
+      background: var(--blue);
+      clip-path: polygon(50% 0%, 100% 31%, 100% 100%, 65% 100%, 65% 62%, 35% 62%, 35% 100%, 0 100%, 0 31%);
+      position: relative;
+    }
+    .emblem span {
+      position: absolute;
+      left: 50%;
+      top: 38%;
+      transform: translate(-50%, -50%);
+      color: #fff;
+      font-size: 23px;
+      font-weight: 900;
+      line-height: 1;
+    }
+    .wordmark {
+      text-align: left;
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: .3px;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .wordmark .room { color: var(--red); }
+    .wordmark small {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid #fecaca;
+      background: #fef2f2;
+      color: #b91c1c;
+      border-radius: 999px;
+      padding: 5px 11px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--red);
+      box-shadow: 0 0 0 4px rgba(227, 6, 19, .12);
+    }
+    h1 {
+      margin: 13px 0 7px;
+      font-size: 27px;
+      line-height: 1.15;
+      letter-spacing: -.5px;
+    }
+    .lead {
+      margin: 0 auto;
+      max-width: 330px;
+      color: var(--muted);
+      font-size: 13.5px;
+      line-height: 1.55;
+    }
+    .countdown-wrap {
+      display: grid;
+      place-items: center;
+      margin: 22px auto 18px;
+      width: 132px;
+      height: 132px;
+      border-radius: 50%;
+      background: #fff;
+      border: 8px solid #e8eefb;
+      position: relative;
+    }
+    .countdown-number {
+      position: relative;
+      z-index: 1;
+      color: var(--blue);
+      font-size: 52px;
+      font-weight: 900;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+    .countdown-number small {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+    .status {
+      margin: 0;
+      color: #334155;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .status strong { color: var(--blue); }
+    .bar {
+      height: 6px;
+      margin: 14px auto 0;
+      max-width: 300px;
+      border-radius: 999px;
+      background: #e8eefb;
+      overflow: hidden;
+    }
+    .bar span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--blue), #1d4ed8);
+      transition: width .25s linear;
+    }
+    .hint {
+      margin: 18px auto 0;
+      max-width: 320px;
+      padding-top: 14px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.5;
+    }
+    .ready {
+      display: none;
+      margin-top: 6px;
+    }
+    .ready.visible { display: block; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      min-height: 48px;
+      border: 0;
+      border-radius: 13px;
+      background: var(--blue);
+      color: #fff;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 12px 24px -14px rgba(0, 51, 160, .8);
+      transition: background .15s ease, transform .15s ease;
+    }
+    .btn:hover { background: var(--blue-dark); }
+    .btn:active { transform: translateY(1px); }
+    .btn svg { width: 18px; height: 18px; }
+    .foot {
+      margin: 20px 0 0;
+      color: #94a3b8;
+      font-size: 10px;
+      line-height: 1.5;
+    }
+    .hidden { display: none !important; }
+    @media (prefers-reduced-motion: reduce) {
+      .bar span, .btn { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="card" role="main">
+    <div class="brand">
+      <div class="emblem" aria-hidden="true"><span>M</span></div>
+      <div class="wordmark">
+        Munchy<span class="room">Room</span>
+        <small>Alimentos Munchy, C.A.</small>
+      </div>
+    </div>
+
+    <span class="pill"><span class="dot" aria-hidden="true"></span> Servidor en descanso</span>
+    <h1>El servidor está tomando un respiro</h1>
+    <p class="lead">
+      Estamos reactivando el servicio para que puedas continuar. La primera conexión
+      del día puede tardar hasta un minuto.
+    </p>
+
+    <div id="countdownArea">
+      <div class="countdown-wrap" id="ring">
+        <div class="countdown-number">
+          <span id="seconds">60</span>
+          <small>segundos</small>
+        </div>
+      </div>
+      <p class="status" id="status">
+        Podrás reconectar en <strong><span id="secondsText">60</span> segundos</strong>.
+      </p>
+      <div class="bar" aria-hidden="true"><span id="bar"></span></div>
+    </div>
+
+    <div class="ready" id="ready">
+      <p class="status" style="margin-bottom:12px">
+        El servicio debería estar listo. Pulsa <strong>Reconectar</strong> para volver a entrar.
+      </p>
+      <button type="button" class="btn" id="reconnect">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 12a9 9 0 1 1-2.64-6.36"/>
+          <path d="M21 3v6h-6"/>
+        </svg>
+        Reconectar
+      </button>
+    </div>
+
+    <p class="hint">
+      El plan gratuito de Render suspende el servicio tras unos minutos de inactividad.
+      Si el problema continúa, cierra esta pestaña y vuelve a abrir MunchyRoom.
+    </p>
+    <p class="foot">MunchyRoom · Alimentos Munchy, C.A. · Hora de Venezuela (UTC-4)</p>
+  </main>
+
+  <noscript>
+    <p style="color:#fff;text-align:center;font-size:13px">
+      Activa JavaScript o recarga la página en unos segundos.
+    </p>
+  </noscript>
+
+  <script>
+    (function () {
+      "use strict";
+      var total = 60;
+      var start = Date.now();
+      var secondsEl = document.getElementById("seconds");
+      var secondsTextEl = document.getElementById("secondsText");
+      var statusEl = document.getElementById("status");
+      var barEl = document.getElementById("bar");
+      var countdownArea = document.getElementById("countdownArea");
+      var readyEl = document.getElementById("ready");
+      var button = document.getElementById("reconnect");
+      var timer = null;
+
+      function render() {
+        var elapsed = (Date.now() - start) / 1000;
+        var remaining = Math.max(0, Math.ceil(total - elapsed));
+        var progress = Math.min(100, Math.max(0, (elapsed / total) * 100));
+
+        secondsEl.textContent = String(remaining);
+        secondsTextEl.textContent = String(remaining);
+        barEl.style.width = progress.toFixed(2) + "%";
+
+        if (remaining <= 0) {
+          window.clearInterval(timer);
+          countdownArea.classList.add("hidden");
+          statusEl.classList.add("hidden");
+          readyEl.classList.add("visible");
+          button.focus();
+        }
+      }
+
+      button.addEventListener("click", function () {
+        window.location.reload();
+      });
+
+      render();
+      timer = window.setInterval(render, 250);
+    })();
+  </script>
+</body>
+</html>
