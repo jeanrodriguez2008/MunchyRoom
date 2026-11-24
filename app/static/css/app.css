@@ -205,7 +205,11 @@ input[type="time"]::-webkit-date-and-time-value {
   background-color: #dc2626;
   color: #fff;
 }
-.room-option.room-conflict .room-name {
+.room-option.room-conflict .room-name,
+.room-option:has(input:checked).room-conflict .room-name {
+  color: #b91c1c;
+}
+.room-option.room-conflict .room-selected-label {
   color: #b91c1c;
 }
 
