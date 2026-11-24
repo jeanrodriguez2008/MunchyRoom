@@ -209,6 +209,33 @@ def manifest():
     )
 
 
+@app.get("/favicon.ico", include_in_schema=False)
+def favicon():
+    return FileResponse(
+        BASE_DIR / "app" / "static" / "icons" / "favicon.ico",
+        media_type="image/x-icon",
+        headers={"Cache-Control": "public, max-age=86400"},
+    )
+
+
+@app.get("/apple-touch-icon.png", include_in_schema=False)
+def apple_touch_icon():
+    return FileResponse(
+        BASE_DIR / "app" / "static" / "icons" / "apple-touch-icon.png",
+        media_type="image/png",
+        headers={"Cache-Control": "public, max-age=86400"},
+    )
+
+
+@app.get("/apple-touch-icon-precomposed.png", include_in_schema=False)
+def apple_touch_icon_precomposed():
+    return FileResponse(
+        BASE_DIR / "app" / "static" / "icons" / "apple-touch-icon.png",
+        media_type="image/png",
+        headers={"Cache-Control": "public, max-age=86400"},
+    )
+
+
 @app.get("/sw.js", include_in_schema=False)
 def service_worker():
     return FileResponse(

@@ -1,14 +1,17 @@
 /* MunchyRoom · Service Worker (PWA).
    Estrategia: network-first para navegación (nunca cachea HTML autenticado),
    cache-first para estáticos propios y fallback offline. */
-const CACHE_NAME = "munchyroom-v5";
+const CACHE_NAME = "munchyroom-v6";
 const OFFLINE_URL = "/offline";
 const PRECACHE = [
   "/static/css/app.css",
   "/static/js/app.js",
   "/static/js/whatsapp.js",
-  "/static/icons/icon.svg",
-  "/static/icons/icon-maskable.svg",
+  "/static/icons/favicon.ico",
+  "/static/icons/icon-192.png",
+  "/static/icons/icon-512.png",
+  "/static/icons/icon-maskable-512.png",
+  "/static/icons/apple-touch-icon.png",
   "/static/img/logo.png",
   "/static/img/logo-white.png",
   "/static/img/logoJR.png",

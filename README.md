@@ -79,6 +79,7 @@ Construido con **FastAPI + Jinja2 + Tailwind CSS + Alpine.js** sobre **PostgreSQ
 **Logotipos y pie de página**
 
 - Encabezado: `app/static/img/logo-white.png` (versión para fondo azul) en la barra superior y `logo.png` en las pantallas públicas. El encabezado autenticado incluye la marca **MUNCHYROOM** y una franja roja con accesos rápidos.
+- Iconos de instalación PWA (PC, Android, iOS): `app/static/icons/icon-*.png`, `icon-maskable-*.png`, `apple-touch-icon.png` y `favicon.ico`, generados a partir de `icono.jpg`.
 - Pie de página: `app/static/img/logoJR.png` enlaza a <https://jeanrodriguez.onrender.com> y lleva debajo el lema **“Soluciones de Automatización a la Medida”**. Se incluye mediante `app/templates/partials/brand_footer.html` en todas las vistas.
 
 ---
