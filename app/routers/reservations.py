@@ -74,12 +74,9 @@ def _new_form_context(db: Session, form_data: dict) -> dict:
     }
 
 
-def _default_form(db: Session) -> dict:
-    rooms = list(
-        db.scalars(select(MeetingRoom).where(MeetingRoom.is_active.is_(True)).order_by(MeetingRoom.name)).all()
-    )
+def _default_form() -> dict:
     return {
-        "room_id": str(rooms[0].id) if rooms else "",
+        "room_id": "",
         "meeting_date": (today_caracas() + timedelta(days=1)).isoformat(),
         "start_time": "09:00",
         "duration_minutes": "60",
@@ -161,7 +158,7 @@ def reservation_new(
         flash(request, "No hay salas activas. Pide al administrador que configure al menos una.", "warning")
         return RedirectResponse("/reservations", status_code=303)
 
-    form_data = _default_form(db)
+    form_data = _default_form()
     if room_id:
         room = db.get(MeetingRoom, room_id)
         if room is not None and room.is_active:
