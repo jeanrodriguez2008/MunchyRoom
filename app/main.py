@@ -26,7 +26,7 @@ from app.config import BASE_DIR, settings
 from app.database import Base, SessionLocal, engine
 from app.dependencies import Forbidden, LoginRequired, PasswordChangeRequired
 from app.routers import admin, api, auth, authorizations, calendar, dashboard, reservations
-from app.seed import seed_database
+from app.seed import seed_database, seed_webmaster
 from app.templating import render
 from app.timeutils import now_caracas
 
@@ -48,11 +48,13 @@ def initialize_database(max_attempts: int = 5) -> None:
             Base.metadata.create_all(bind=engine)
             with SessionLocal() as db:
                 summary = seed_database(db)
+                webmaster_created = seed_webmaster(db)
             logger.info(
-                "Base de datos lista. Seed: %s salas, %s cargos, %s admin.",
+                "Base de datos lista. Seed: %s salas, %s cargos, %s admin, webmaster nuevo: %s.",
                 summary["rooms"],
                 summary["positions"],
                 summary["admin"],
+                webmaster_created,
             )
             return
         except Exception as exc:  # pragma: no cover - depende de la red/Neon

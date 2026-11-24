@@ -60,6 +60,12 @@ class Settings:
         self.seed_admin_password: str = os.getenv("SEED_ADMIN_PASSWORD", "MunchyAdmin2026*")
         self.seed_admin_name: str = os.getenv("SEED_ADMIN_NAME", "Administrador MunchyRoom")
 
+        # Cuenta de soporte webmaster: oculta para los administradores.
+        # Solo se crea automáticamente si WEBMASTER_PASSWORD tiene un valor.
+        self.webmaster_email: str = os.getenv("WEBMASTER_EMAIL", "webmaster@munchy.com").strip().lower()
+        self.webmaster_name: str = os.getenv("WEBMASTER_NAME", "Webmaster MunchyRoom").strip()
+        self.webmaster_password: str = os.getenv("WEBMASTER_PASSWORD", "").strip()
+
         # Dominios corporativos permitidos para el autorregistro.
         raw_domains = os.getenv("CORPORATE_EMAIL_DOMAINS", "munchy.com")
         self.corporate_email_domains: tuple[str, ...] = tuple(

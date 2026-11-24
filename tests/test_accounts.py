@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 import pytest
-from sqlalchemy import select
+from sqlalchemy import func, select
 
-from app.models import User, UserSecurityAnswer
+from app.constants import Role
+from app.models import User, UserSecurityAnswer, WebmasterAccount
+from app.security import verify_password
+from app.seed import seed_webmaster
 from app.services.accounts import (
     AccountError,
     is_corporate_email,
@@ -153,3 +156,36 @@ def test_set_security_answers_can_keep_the_same_questions(db):
         user,
         {"mascota": "nuevoperro", "ciudad_madre": "maracaibo", "escuela": "andres bello"},
     )
+
+
+def test_seed_webmaster_creates_hidden_superuser(db):
+    created = seed_webmaster(
+        db,
+        email="webmaster@munchy.com",
+        password="Webmaster2026*",
+        name="Webmaster MunchyRoom",
+    )
+    assert created is True
+
+    webmaster = db.scalar(select(User).where(User.email == "webmaster@munchy.com"))
+    assert webmaster is not None
+    assert webmaster.is_webmaster is True
+    assert webmaster.is_active is True
+    assert webmaster.must_change_password is False
+    assert webmaster.has_role(Role.ADMIN)
+    assert webmaster.has_role(Role.REQUESTER)
+    assert verify_password("Webmaster2026*", webmaster.password_hash)
+    assert db.scalar(select(func.count()).select_from(WebmasterAccount)) == 1
+
+    # Es idempotente: no crea una segunda cuenta ni cambia la contraseña.
+    assert (
+        seed_webmaster(
+            db,
+            email="webmaster@munchy.com",
+            password="OtraClave2026*",
+            name="Webmaster MunchyRoom",
+        )
+        is False
+    )
+    db.refresh(webmaster)
+    assert verify_password("Webmaster2026*", webmaster.password_hash)

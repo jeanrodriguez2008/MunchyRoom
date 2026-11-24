@@ -491,7 +491,7 @@ Incluye:
 python -m pytest -q
 ```
 
-Resultado esperado: **27 passed**.
+Resultado esperado: **28 passed**.
 
 Las pruebas usan **SQLite en memoria** (`tests/conftest.py` define `DATABASE_URL` antes de importar la app), por lo que **nunca tocan la base de datos de Neon**.
 
