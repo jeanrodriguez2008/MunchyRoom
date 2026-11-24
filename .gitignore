@@ -46,3 +46,7 @@ logs/
 
 # Render / despliegue
 render.yaml.bak
+
+# Manual: archivos temporales de generación
+docs/_manual_raw.pdf
+docs/_manual_final.pdf

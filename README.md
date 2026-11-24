@@ -4,6 +4,8 @@ Sistema web **Mobile-First / PWA** para la gestión, solicitud, validación y au
 
 Construido con **FastAPI + Jinja2 + Tailwind CSS + Alpine.js** sobre **PostgreSQL (Neon Tech)**, listo para desplegarse en **Render** desde **GitHub**.
 
+> **Manual de usuario y administrador:** [`docs/Manual_MunchyRoom_Usuario_Administrador.pdf`](docs/Manual_MunchyRoom_Usuario_Administrador.pdf)
+
 ---
 
 ## Tabla de contenido

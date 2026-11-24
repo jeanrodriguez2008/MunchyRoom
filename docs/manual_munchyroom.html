@@ -1,0 +1,1854 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>MunchyRoom · Manual de usuario y administrador</title>
+<meta name="author" content="Jean Rodríguez · MunchyRoom">
+<meta name="description" content="Manual de usuario y administrador de MunchyRoom, sistema de gestión de salas de reuniones de Alimentos Munchy, C.A.">
+<style>
+  :root {
+    --blue: #0033a0;
+    --blue-dark: #00246f;
+    --blue-soft: #eef3ff;
+    --red: #e30613;
+    --ink: #0b1b3a;
+    --slate: #475569;
+    --muted: #64748b;
+    --line: #dbe3f0;
+    --surface: #f8fafc;
+    --green: #047857;
+    --green-soft: #ecfdf5;
+    --amber: #92400e;
+    --amber-soft: #fffbeb;
+    --red-soft: #fef2f2;
+  }
+  * { box-sizing: border-box; }
+  html {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  @page {
+    size: A4;
+    margin: 17mm 15mm 20mm;
+  }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    font-size: 10.2pt;
+    line-height: 1.55;
+    color: #1e293b;
+    background: #fff;
+  }
+  h1, h2, h3, h4 {
+    color: var(--ink);
+    margin: 0;
+    font-family: "Segoe UI Semibold", "Segoe UI", Arial, sans-serif;
+    line-height: 1.2;
+  }
+  h1 { font-size: 26pt; letter-spacing: -0.4pt; }
+  h2 { font-size: 19pt; letter-spacing: -0.2pt; }
+  h3 { font-size: 13pt; margin-top: 14pt; margin-bottom: 5pt; break-after: avoid; }
+  h4 { font-size: 10.8pt; margin-top: 10pt; margin-bottom: 3pt; break-after: avoid; }
+  p { margin: 0 0 7pt; orphans: 3; widows: 3; }
+  ul, ol { margin: 4pt 0 8pt 16pt; padding: 0; }
+  li { margin-bottom: 3.5pt; }
+  strong { color: #0f172a; }
+  a { color: var(--blue); text-decoration: none; }
+  small { font-size: 8.5pt; color: var(--muted); }
+  code {
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 8.8pt;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 3px;
+    padding: 0 3px;
+  }
+
+  /* ---------- Portada ---------- */
+  .cover {
+    min-height: 245mm;
+    border-radius: 10mm;
+    padding: 22mm 18mm 16mm;
+    color: #fff;
+    background:
+      radial-gradient(circle at 88% 8%, rgba(255,255,255,.10) 0 26%, transparent 27%),
+      radial-gradient(circle at 4% 92%, rgba(227,6,19,.28) 0 24%, transparent 25%),
+      linear-gradient(145deg, #0033a0 0%, #00246f 70%, #001a52 100%);
+    position: relative;
+    overflow: hidden;
+    break-after: page;
+  }
+  .cover .cover-logo { height: 15mm; width: auto; }
+  .cover .cover-top {
+    display: flex;
+    align-items: center;
+    gap: 6mm;
+    padding-bottom: 7mm;
+    border-bottom: 1px solid rgba(255,255,255,.22);
+  }
+  .cover .cover-top .divider { width: 1px; height: 11mm; background: rgba(255,255,255,.28); }
+  .cover .cover-top p { margin: 0; font-size: 10pt; letter-spacing: .16em; text-transform: uppercase; color: #c7d8ff; }
+  .cover .emblem {
+    width: 26mm; height: 26mm;
+    background: #fff;
+    clip-path: polygon(50% 0%, 100% 31%, 100% 100%, 65% 100%, 65% 62%, 35% 62%, 35% 100%, 0 100%, 0 31%);
+    position: relative;
+    margin-bottom: 8mm;
+  }
+  .cover .emblem span {
+    position: absolute; left: 50%; top: 38%;
+    transform: translate(-50%, -50%);
+    font-size: 20mm; font-weight: 800;
+    color: var(--red);
+    font-family: "Segoe UI Black", "Segoe UI", Arial, sans-serif;
+  }
+  .cover .wordmark {
+    font-family: "Segoe UI Black", "Segoe UI", Arial, sans-serif;
+    font-size: 34pt;
+    letter-spacing: 0.5pt;
+    text-transform: uppercase;
+    line-height: 1;
+    margin: 0;
+  }
+  .cover .wordmark .room { color: #ff3b47; }
+  .cover .swoosh {
+    width: 74mm; height: 3mm; margin: 4mm 0 2mm;
+  }
+  .cover .company { font-size: 9pt; letter-spacing: .25em; text-transform: uppercase; color: #b9cdff; }
+  .cover h1 {
+    color: #fff;
+    font-size: 30pt;
+    margin-top: 24mm;
+    line-height: 1.08;
+  }
+  .cover .subtitle {
+    color: #d8e3ff;
+    font-size: 12pt;
+    max-width: 135mm;
+    margin-top: 5mm;
+    line-height: 1.5;
+  }
+  .cover .meta {
+    position: absolute; left: 18mm; right: 18mm; bottom: 17mm;
+    display: flex; justify-content: space-between; align-items: flex-end;
+    border-top: 1px solid rgba(255,255,255,.22);
+    padding-top: 5mm;
+    font-size: 9pt; color: #c7d8ff;
+  }
+  .cover .meta strong { color: #fff; display: block; font-size: 10pt; }
+  .cover .jr { display: flex; align-items: center; gap: 3mm; }
+  .cover .jr img { height: 10mm; }
+  .cover .jr p { margin: 0; font-size: 8pt; color: #c7d8ff; max-width: 55mm; }
+
+  /* ---------- Estructura ---------- */
+  .part-cover {
+    min-height: 245mm;
+    border-radius: 8mm;
+    padding: 28mm 20mm;
+    color: #fff;
+    background:
+      radial-gradient(circle at 95% 92%, rgba(227,6,19,.30) 0 26%, transparent 27%),
+      linear-gradient(150deg, #00246f 0%, #0033a0 72%, #0b49c9 100%);
+    position: relative;
+    break-before: page;
+    break-after: page;
+  }
+  .part-cover .kicker { font-size: 10pt; letter-spacing: .28em; text-transform: uppercase; color: #c7d8ff; }
+  .part-cover .big-number {
+    font-family: "Segoe UI Black", "Segoe UI", Arial, sans-serif;
+    font-size: 80pt; line-height: .9; color: rgba(255,255,255,.22);
+    margin-top: 18mm;
+  }
+  .part-cover h1 { color: #fff; font-size: 34pt; margin-top: 4mm; }
+  .part-cover p { color: #d8e3ff; max-width: 140mm; font-size: 12pt; margin-top: 6mm; }
+  .part-cover .part-list {
+    position: absolute; left: 20mm; right: 20mm; bottom: 26mm;
+    border-top: 1px solid rgba(255,255,255,.25);
+    padding-top: 5mm;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 2mm 10mm;
+    font-size: 10pt; color: #d8e3ff;
+  }
+
+  .section-head {
+    border-left: 5px solid var(--red);
+    padding: 2mm 0 2mm 6mm;
+    margin-top: 11mm;
+    margin-bottom: 8mm;
+    break-after: avoid;
+    break-inside: avoid;
+  }
+  .section-head.appendix-head { break-before: page; margin-top: 0; }
+  .section-head .eyebrow { font-size: 8.5pt; letter-spacing: .2em; text-transform: uppercase; color: var(--red); font-weight: 700; }
+  .section-head h2 { margin-top: 2mm; }
+  .section-head .lead { color: var(--muted); font-size: 10.5pt; margin-top: 3mm; max-width: 150mm; }
+
+  .box {
+    border-radius: 3mm;
+    padding: 4mm 5mm;
+    margin: 5mm 0;
+    break-inside: avoid;
+  }
+  .box .box-title { font-size: 8.2pt; letter-spacing: .14em; text-transform: uppercase; font-weight: 800; margin-bottom: 2mm; }
+  .benefits { background: var(--blue-soft); border: 1px solid #c9d8fb; }
+  .benefits .box-title { color: var(--blue); }
+  .benefits ul { margin-bottom: 0; }
+  .example { background: var(--green-soft); border: 1px solid #a7f3d0; }
+  .example .box-title { color: var(--green); }
+  .warning { background: var(--amber-soft); border: 1px solid #fde68a; }
+  .warning .box-title { color: var(--amber); }
+  .danger { background: var(--red-soft); border: 1px solid #fecaca; }
+  .danger .box-title { color: #b91c1c; }
+  .tip { background: #f8fafc; border: 1px solid var(--line); }
+  .tip .box-title { color: var(--slate); }
+
+  .steps { counter-reset: step; list-style: none; margin: 5mm 0; padding: 0; }
+  .steps > li {
+    position: relative;
+    padding-left: 10mm;
+    margin-bottom: 5mm;
+    break-inside: avoid;
+  }
+  .steps > li::before {
+    counter-increment: step;
+    content: counter(step);
+    position: absolute; left: 0; top: -0.5mm;
+    width: 6.5mm; height: 6.5mm;
+    border-radius: 50%;
+    background: var(--blue);
+    color: #fff;
+    font-size: 9pt; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .steps > li strong.step-title { display: block; color: var(--ink); font-size: 10.6pt; margin-bottom: 1mm; }
+
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 4mm 0 6mm;
+    font-size: 9pt;
+    break-inside: avoid;
+  }
+  .table th {
+    background: var(--blue);
+    color: #fff;
+    text-align: left;
+    padding: 2.4mm 3mm;
+    font-size: 8.4pt;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
+  .table td {
+    border: 1px solid var(--line);
+    padding: 2.2mm 3mm;
+    vertical-align: top;
+  }
+  .table tr:nth-child(even) td { background: #f8fafc; }
+  .table.compact td, .table.compact th { padding: 1.9mm 2.5mm; }
+
+  .flow {
+    display: flex; align-items: stretch; gap: 2mm; margin: 5mm 0;
+    break-inside: avoid;
+  }
+  .flow .node {
+    flex: 1;
+    border: 1px solid var(--line);
+    border-radius: 2.5mm;
+    padding: 3mm;
+    background: #fff;
+    text-align: center;
+  }
+  .flow .node .n { font-size: 8pt; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); font-weight: 700; }
+  .flow .node strong { display: block; font-size: 9.2pt; margin-top: 1mm; }
+  .flow .arrow { align-self: center; color: var(--muted); font-weight: 700; font-size: 12pt; }
+  .flow .node.start { border-color: #fcd34d; background: #fffbeb; }
+  .flow .node.mid { border-color: #fdba74; background: #fff7ed; }
+  .flow .node.ok { border-color: #6ee7b7; background: #ecfdf5; }
+  .flow .node.no { border-color: #fca5a5; background: #fef2f2; }
+
+  .cols-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; }
+  .cols-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4mm; }
+  .mini-card {
+    border: 1px solid var(--line);
+    border-radius: 3mm;
+    padding: 4mm;
+    background: #fff;
+    break-inside: avoid;
+  }
+  .mini-card h4 { margin-top: 0; color: var(--blue); }
+  .mini-card p { margin-bottom: 0; font-size: 9.2pt; color: var(--muted); }
+  .badge {
+    display: inline-block;
+    border-radius: 999px;
+    padding: 0.6mm 2.5mm;
+    font-size: 7.8pt;
+    font-weight: 700;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+  }
+  .badge.blue { background: var(--blue-soft); color: var(--blue); border: 1px solid #c9d8fb; }
+  .badge.green { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
+  .badge.amber { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+  .badge.red { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+  .badge.gray { background: #f8fafc; color: #475569; border: 1px solid var(--line); }
+
+  .quote {
+    border-left: 4px solid var(--blue);
+    background: #f8fafc;
+    padding: 3mm 5mm;
+    margin: 4mm 0;
+    color: #334155;
+    font-style: italic;
+    break-inside: avoid;
+  }
+  .muted { color: var(--muted); }
+  .nowrap { white-space: nowrap; }
+  .center { text-align: center; }
+  .small { font-size: 8.8pt; }
+  .mt-0 { margin-top: 0; }
+  .mb-0 { margin-bottom: 0; }
+
+  /* ---------- Índice ---------- */
+  .toc { break-after: page; }
+  .toc h2 { font-size: 21pt; margin-bottom: 2mm; }
+  .toc .toc-lead { color: var(--muted); margin-bottom: 7mm; }
+  .toc-part {
+    margin: 4mm 0 2mm;
+    padding: 2mm 0 1.5mm;
+    border-bottom: 2px solid var(--blue);
+    color: var(--blue);
+    font-size: 10pt;
+    font-weight: 800;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+  }
+  .toc-row {
+    display: flex;
+    align-items: baseline;
+    gap: 2mm;
+    padding: 0.7mm 0;
+    font-size: 9.2pt;
+  }
+  .toc-row .toc-num {
+    width: 7mm;
+    flex-shrink: 0;
+    color: var(--red);
+    font-weight: 800;
+    font-size: 8.6pt;
+  }
+  .toc-row .toc-text { color: #1e293b; }
+  .toc-row .toc-dots {
+    flex: 1;
+    border-bottom: 1px dotted #cbd5e1;
+    margin: 0 1mm;
+    transform: translateY(-1mm);
+  }
+  .toc-row .toc-page { width: 7mm; text-align: right; color: var(--blue); font-weight: 700; font-size: 8.6pt; }
+  .toc-note {
+    margin-top: 4mm;
+    padding: 3mm 4mm;
+    border-radius: 2.5mm;
+    background: var(--blue-soft);
+    border: 1px solid #c9d8fb;
+    color: #1e3a8a;
+    font-size: 8.8pt;
+  }
+
+  /* ---------- Presentación ---------- */
+  .intro-page { break-after: page; }
+  .intro-page h2 { font-size: 21pt; margin-bottom: 3mm; }
+  .intro-page .lead { color: var(--muted); font-size: 11pt; margin-bottom: 6mm; }
+  .legend { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm 6mm; margin: 5mm 0; }
+  .legend .item { display: flex; gap: 3mm; align-items: flex-start; font-size: 9.2pt; }
+  .legend .swatch { width: 4mm; height: 4mm; border-radius: 1mm; flex-shrink: 0; margin-top: 1mm; }
+
+  /* ---------- Varios ---------- */
+  .keep { break-inside: avoid; }
+  .page-break { break-before: page; }
+  .section-separator { height: 1px; background: var(--line); margin: 7mm 0; }
+  .checklist { list-style: none; margin-left: 0; padding-left: 0; }
+  .checklist li { padding-left: 7mm; position: relative; }
+  .checklist li::before { content: "✓"; position: absolute; left: 0; color: var(--green); font-weight: 800; }
+  .kbd {
+    display: inline-block;
+    border: 1px solid #cbd5e1;
+    border-bottom-width: 2px;
+    border-radius: 1mm;
+    padding: 0 1.2mm;
+    font-size: 8pt;
+    background: #f8fafc;
+    color: #334155;
+  }
+</style>
+</head>
+<body>
+
+<!-- ==================================================================== -->
+<!-- PORTADA                                                              -->
+<!-- ==================================================================== -->
+<section class="cover">
+  <div class="cover-top">
+    <img class="cover-logo" src="../app/static/img/logo-white.png" alt="Alimentos Munchy">
+    <span class="divider"></span>
+    <p>Gestión de salas de reuniones</p>
+  </div>
+
+  <div style="margin-top:20mm">
+    <div class="emblem"><span>M</span></div>
+    <p class="wordmark">Munchy<span class="room">Room</span></p>
+    <svg class="swoosh" viewBox="0 0 240 10" fill="none" aria-hidden="true">
+      <path d="M2 7C58 2 181 3 238 6" stroke="#E30613" stroke-width="4" stroke-linecap="round"/>
+    </svg>
+    <p class="company">Alimentos Munchy, C.A.</p>
+  </div>
+
+  <h1>Manual de usuario<br>y administrador</h1>
+  <p class="subtitle">
+    Guía práctica para solicitar salas, validar disponibilidad, autorizar reuniones,
+    convocar por WhatsApp y administrar usuarios, salas y cargos.
+  </p>
+
+  <div class="meta">
+    <div>
+      <strong>Versión 1.0</strong>
+      Noviembre de 2026 · Zona horaria America/Caracas (UTC-4)
+    </div>
+    <div class="jr">
+      <img src="../app/static/img/logoJR.png" alt="Jean Rodríguez">
+      <p><strong>Soluciones de Automatización a la Medida</strong>jeanrodriguez.onrender.com</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================================================================== -->
+<!-- PRESENTACIÓN                                                         -->
+<!-- ==================================================================== -->
+<section class="intro-page">
+  <p class="badge blue">Bienvenido(a)</p>
+  <h2 style="margin-top:3mm">Cómo usar este manual</h2>
+  <p class="lead">
+    MunchyRoom centraliza la reserva de las salas de reuniones de Alimentos Munchy, C.A.
+    Este documento acompaña al sistema en producción y está dividido en dos partes:
+    una para cualquier persona que solicite o participe en reuniones y otra para el
+    administrador o webmaster.
+  </p>
+
+  <div class="cols-2">
+    <div class="mini-card">
+      <span class="badge blue">Parte I</span>
+      <h4 style="margin-top:2.5mm">Manual de usuario</h4>
+      <p>
+        Para solicitantes, anfitriones, participantes y jefes autorizadores. Explica cómo
+        ingresar, registrarse, recuperar la contraseña, consultar el calendario, crear una
+        solicitud, cancelar y convocar por WhatsApp.
+      </p>
+    </div>
+    <div class="mini-card">
+      <span class="badge red">Parte II</span>
+      <h4 style="margin-top:2.5mm">Manual de administrador</h4>
+      <p>
+        Para el administrador o webmaster. Explica la aprobación de registros, la asignación
+        de roles, la gestión de salas y cargos, la validación de solicitudes y las buenas
+        prácticas de seguridad.
+      </p>
+    </div>
+  </div>
+
+  <h3>Convenciones visuales</h3>
+  <div class="legend">
+    <div class="item"><span class="swatch" style="background:#0033A0"></span><span><strong>Azul corporativo:</strong> acciones principales, selección y navegación.</span></div>
+    <div class="item"><span class="swatch" style="background:#E30613"></span><span><strong>Rojo corporativo:</strong> alertas, rechazos y conflictos.</span></div>
+    <div class="item"><span class="swatch" style="background:#047857"></span><span><strong>Verde:</strong> disponible, autorizada, enviado o completado.</span></div>
+    <div class="item"><span class="swatch" style="background:#D97706"></span><span><strong>Ámbar:</strong> pendiente de administración o advertencia.</span></div>
+  </div>
+
+  <div class="box tip">
+    <div class="box-title">Cómo leer los recuadros</div>
+    <ul style="margin-bottom:0">
+      <li><strong>BONDADES DE ESTA SECCIÓN:</strong> qué gana el usuario o la empresa al usar esa pantalla.</li>
+      <li><strong>PASO A PASO:</strong> secuencia recomendada, numerada.</li>
+      <li><strong>EJEMPLO PRÁCTICO:</strong> un caso real con nombres y datos ficticios.</li>
+      <li><strong>IMPORTANTE:</strong> reglas del sistema que no se pueden omitir.</li>
+    </ul>
+  </div>
+
+  <div class="quote">
+    “MunchyRoom no solo organiza reuniones: evita choques de horario, deja trazabilidad de
+    quién aprobó cada solicitud y permite convocar a los participantes por WhatsApp en segundos.”
+  </div>
+
+  <p class="small muted">
+    Este manual describe la versión desplegada en <strong>https://munchyroom.onrender.com</strong>.
+    Algunos textos de la interfaz pueden variar ligeramente si el administrador personaliza
+    nombres de salas, cargos o departamentos.
+  </p>
+</section>
+
+<!-- ==================================================================== -->
+<!-- ÍNDICE                                                               -->
+<!-- ==================================================================== -->
+<section class="toc">
+  <h2>Contenido</h2>
+  <p class="toc-lead">Recorre el manual por partes o consulta directamente la sección que necesitas.</p>
+
+  <div class="toc-part">Parte I · Manual de usuario</div>
+  <div class="toc-row" data-toc="1. Conoce MunchyRoom"><span class="toc-num">1</span><span class="toc-text">Conoce MunchyRoom</span><span class="toc-dots"></span><span class="toc-page"></span></div>
+  <div class="toc-row" data-toc="2. Acceso y seguridad"><span class="toc-num">2</span><span class="toc-text">Acceso y seguridad</span><span class="toc-dots"></span><span class="toc-page"></span></div>
+  <div class="toc-row" data-toc="3. Panel de inicio"><span class="toc-num">3</span><span class="toc-text">Panel de inicio</span><span class="toc-dots"></span><span class="toc-page"></span></div>
+  <div class="toc-row" data-toc="4. Calendario de salas"><span class="toc-num">4</span><span class="toc-text">Calendario de salas</span><span class="toc-dots"></span><span class="toc-page"></span></div>
+  <div class="toc-row" data-toc="5. Solicitar una sala"><span class="toc-num">5</span><span class="toc-text">Solicitar una sala</span><span class="toc-dots"></span><span class="toc-page"></span></div>
+  <div class="toc-row" data-toc="6. Mis solicitudes y cancelación"><span class="toc-num">6</span><span class="toc-text">Mis solicitudes y cancelación</span><span class="toc-dots"></span><span class="toc-page"></span></div>
+  <div class="toc-row" data-toc="7. Reuniones invitadas"><span class="toc-num">7</span><span class="toc-text">Reuniones invitadas</span><span class="toc-dots"></span><span class="toc-page"></span></div>
+  <div class="toc-row" data-toc="8. Convocatoria por WhatsApp"><span class="toc-num">8</span><span class="toc-text">Convocatoria por WhatsApp</span><span class="toc-dots"></span><span class="toc-page"></span></div>
+  <div class="toc-row" data-toc="9. Autorizaciones del jefe"><span class="toc-num">9</span><span class="toc-text">Autorizaciones del jefe</span><span class="toc-dots"></span><span class="toc-page"></span></div>
+  <div class="toc-row" data-toc="10. Perfil, contraseña y preguntas de seguridad"><span class="toc-num">10</span><span class="toc-text">Perfil, contraseña y preguntas</span><span class="toc-dots"></span><span class="toc-page"></span></div>
+  <div class="toc-row" data-toc="11. Preguntas frecuentes del usuario"><span class="toc-num">11</span><span class="toc-text">Preguntas frecuentes del usuario</span><span class="toc-dots"></span><span class="toc-page"></span></div>
+
+  <div class="toc-part">Parte II · Manual de administrador</div>
+  <div class="toc-row" data-toc="12. Rol y responsabilidades"><span class="toc-num">12</span><span class="toc-text">Rol y responsabilidades</span><span class="toc-dots"></span><span class="toc-page"></span></div>
+  <div class="toc-row" data-toc="13. Primer ingreso y puesta en marcha"><span class="toc-num">13</span><span class="toc-text">Primer ingreso y puesta en marcha</span><span class="toc-dots"></span><span class="toc-page"></span></div>
+  <div class="toc-row" data-toc="14. Panel del administrador"><span class="toc-num">14</span><span class="toc-text">Panel del administrador</span><span class="toc-dots"></span><span class="toc-page"></span></div>
+  <div class="toc-row" data-toc="15. Gestión de solicitudes"><span class="toc-num">15</span><span class="toc-text">Gestión de solicitudes</span><span class="toc-dots"></span><span class="toc-page"></span></div>
+  <div class="toc-row" data-toc="16. Gestión de salas"><span class="toc-num">16</span><span class="toc-text">Gestión de salas</span><span class="toc-dots"></span><span class="toc-page"></span></div>
+  <div class="toc-row" data-toc="17. Usuarios, registros y roles"><span class="toc-num">17</span><span class="toc-text">Usuarios, registros y roles</span><span class="toc-dots"></span><span class="toc-page"></span></div>
+  <div class="toc-row" data-toc="18. Catálogo de cargos"><span class="toc-num">18</span><span class="toc-text">Catálogo de cargos</span><span class="toc-dots"></span><span class="toc-page"></span></div>
+  <div class="toc-row" data-toc="19. Seguridad y operación"><span class="toc-num">19</span><span class="toc-text">Seguridad y operación</span><span class="toc-dots"></span><span class="toc-page"></span></div>
+  <div class="toc-row" data-toc="20. Solución de problemas"><span class="toc-num">20</span><span class="toc-text">Solución de problemas</span><span class="toc-dots"></span><span class="toc-page"></span></div>
+
+  <div class="toc-part">Apéndices</div>
+  <div class="toc-row" data-toc="A. Matriz de roles y permisos"><span class="toc-num">A</span><span class="toc-text">Matriz de roles y permisos</span><span class="toc-dots"></span><span class="toc-page"></span></div>
+  <div class="toc-row" data-toc="B. Estados, reglas y validaciones"><span class="toc-num">B</span><span class="toc-text">Estados, reglas y validaciones</span><span class="toc-dots"></span><span class="toc-page"></span></div>
+  <div class="toc-row" data-toc="C. Glosario"><span class="toc-num">C</span><span class="toc-text">Glosario</span><span class="toc-dots"></span><span class="toc-page"></span></div>
+
+  <div class="toc-note">
+    <strong>Consejo:</strong> si necesitas una respuesta rápida, abre el índice del PDF
+    o consulta las preguntas frecuentes de la sección 11 y la sección 20.
+  </div>
+</section>
+
+<!-- ==================================================================== -->
+<!-- PARTE I                                                              -->
+<!-- ==================================================================== -->
+<section class="part-cover">
+  <p class="kicker">Parte I</p>
+  <div class="big-number">01</div>
+  <h1>Manual de usuario</h1>
+  <p>
+    Todo lo necesario para ingresar, consultar la disponibilidad, solicitar una sala,
+    dar seguimiento a tus reuniones, cancelar cuando corresponda y convocar a los participantes.
+  </p>
+  <div class="part-list">
+    <span>1 · Conoce MunchyRoom</span><span>2 · Acceso y seguridad</span>
+    <span>3 · Panel de inicio</span><span>4 · Calendario</span>
+    <span>5 · Solicitar una sala</span><span>6 · Mis solicitudes</span>
+    <span>7 · Reuniones invitadas</span><span>8 · WhatsApp</span>
+    <span>9 · Autorizaciones</span><span>10 · Perfil y contraseña</span>
+  </div>
+</section>
+
+<!-- 1 -->
+<section>
+  <div class="section-head" data-section="1. Conoce MunchyRoom">
+    <p class="eyebrow">Parte I · Manual de usuario</p>
+    <h2>1. Conoce MunchyRoom</h2>
+    <p class="lead">Una sola plataforma para reservar las salas de Alimentos Munchy, evitar cruces de horario y dejar registro de cada aprobación.</p>
+  </div>
+
+  <p>
+    MunchyRoom es una aplicación web instalable (PWA) diseñada para teléfonos, tabletas y
+    computadoras. Funciona con la zona horaria estricta de Venezuela
+    (<strong>America/Caracas, UTC-4</strong>) y permite que varias personas participen en el
+    mismo flujo: quien solicita, quien valida la disponibilidad, quien autoriza y quienes
+    asistirán a la reunión.
+  </p>
+
+  <div class="box benefits">
+    <div class="box-title">Bondades de MunchyRoom</div>
+    <ul>
+      <li><strong>Disponibilidad en tiempo real:</strong> antes de enviar una solicitud sabes si la sala está libre, ocupada o con otra solicitud pendiente.</li>
+      <li><strong>Doble validación:</strong> el administrador valida la disponibilidad y el jefe autorizador da la aprobación final.</li>
+      <li><strong>Bloqueo estricto de solapamientos:</strong> el sistema impide reservar dos reuniones en la misma sala y horario.</li>
+      <li><strong>Convocatoria por WhatsApp:</strong> cuando la reunión está autorizada, se generan mensajes individuales listos para enviar.</li>
+      <li><strong>Trazabilidad:</strong> cada solicitud guarda quién la creó, quién la validó, quién la autorizó y cuándo cambió de estado.</li>
+      <li><strong>Multi-rol:</strong> una misma persona puede ser participante, solicitante, autorizador y administrador a la vez.</li>
+      <li><strong>Mobile-first e instalable:</strong> se usa desde el navegador o se instala como aplicación en el teléfono.</li>
+    </ul>
+  </div>
+
+  <h3>Roles que pueden intervenir</h3>
+  <table class="table">
+    <thead><tr><th>Rol</th><th>Qué puede hacer</th><th>Ejemplo típico</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Participante</strong></td><td>Ser invitado a reuniones y consultar su agenda.</td><td>Analista invitado a una revisión.</td></tr>
+      <tr><td><strong>Solicitante / Anfitrión</strong></td><td>Consultar disponibilidad, crear solicitudes, cancelar las propias con más de 24 h y convocar participantes.</td><td>Jefa de Compras que organiza una reunión.</td></tr>
+      <tr><td><strong>Jefe Autorizador</strong></td><td>Recibir solicitudes validadas por el administrador y autorizar o rechazar.</td><td>Gerente de Área que da la aprobación final.</td></tr>
+      <tr><td><strong>Administrador</strong></td><td>Gestionar salas, usuarios, registros, cargos y validar solicitudes.</td><td>Webmaster o coordinador administrativo.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>El flujo de una reunión, en una mirada</h3>
+  <div class="flow">
+    <div class="node start"><span class="n">Paso 1</span><strong>Pendiente de administración</strong><span class="small muted">El solicitante envía la solicitud.</span></div>
+    <div class="arrow">→</div>
+    <div class="node mid"><span class="n">Paso 2</span><strong>Pendiente de autorización</strong><span class="small muted">El administrador valida y asigna un jefe.</span></div>
+    <div class="arrow">→</div>
+    <div class="node ok"><span class="n">Paso 3</span><strong>Autorizada</strong><span class="small muted">El jefe aprueba y la sala queda bloqueada.</span></div>
+  </div>
+  <p class="small muted">
+    Si el administrador o el jefe rechazan la solicitud, pasa a <strong>Rechazada</strong>.
+    Si el solicitante o un administrador la cancelan antes de las 24 horas previas, pasa a
+    <strong>Cancelada</strong> y la sala vuelve a quedar libre.
+  </p>
+
+  <div class="box example">
+    <div class="box-title">Ejemplo práctico</div>
+    <p>
+      Ana, del área de Compras, necesita la Sala Azul el miércoles 3 de diciembre de 10:00 a
+      11:00. Entra a MunchyRoom, verifica que la sala esté libre, crea la solicitud e invita
+      a cuatro personas. El administrador la revisa y la envía al gerente de área; el gerente
+      la autoriza. Recién entonces Ana puede abrir la convocatoria por WhatsApp.
+    </p>
+  </div>
+
+  <div class="box warning">
+    <div class="box-title">Importante</div>
+    <p class="mb-0">
+      Una sala solo se considera reservada cuando la solicitud está <strong>Autorizada</strong>.
+      Mientras esté pendiente, el horario aún puede cambiar. Por eso el sistema bloquea la
+      sala al autorizar y notifica los cruces antes de continuar.
+    </p>
+  </div>
+</section>
+
+<!-- 2 -->
+<section>
+  <div class="section-head" data-section="2. Acceso y seguridad">
+    <p class="eyebrow">Parte I · Manual de usuario</p>
+    <h2>2. Acceso y seguridad</h2>
+    <p class="lead">Cómo entrar por primera vez, registrarte con tu correo corporativo y recuperar la contraseña sin depender de terceros.</p>
+  </div>
+
+  <h3>2.1 Iniciar sesión</h3>
+  <ol class="steps">
+    <li><strong class="step-title">Abre la aplicación</strong> Ingresa a <strong>https://munchyroom.onrender.com</strong> desde tu navegador. Si la instalaste como PWA, ábrela desde el icono de la aplicación.</li>
+    <li><strong class="step-title">Escribe tu correo corporativo</strong> Usa el correo registrado, por ejemplo <code>ana.perez@munchy.com</code>.</li>
+    <li><strong class="step-title">Escribe tu contraseña</strong> Puedes pulsar <strong>Ver</strong> para mostrar los caracteres antes de enviar.</li>
+    <li><strong class="step-title">Pulsa Iniciar sesión</strong> El sistema te lleva al panel de inicio. Si es tu primer ingreso, te pedirá cambiar la contraseña.</li>
+  </ol>
+
+  <div class="box example">
+    <div class="box-title">Ejemplo práctico</div>
+    <p class="mb-0">
+      Ana recibe su cuenta corporativa. Ingresa con <code>ana.perez@munchy.com</code> y una
+      contraseña temporal. MunchyRoom la redirige a <strong>Cambiar contraseña</strong>; allí
+      define una nueva clave y configura sus tres preguntas de seguridad.
+    </p>
+  </div>
+
+  <h3>2.2 Registro corporativo</h3>
+  <p>
+    Si aún no tienes cuenta, en la pantalla de login pulsa <strong>Registrarme</strong>. El
+    formulario solicita:
+  </p>
+  <table class="table compact">
+    <thead><tr><th>Campo</th><th>Regla</th></tr></thead>
+    <tbody>
+      <tr><td>Nombre y apellido</td><td>Mínimo 3 caracteres.</td></tr>
+      <tr><td>Correo corporativo</td><td>Debe pertenecer a un dominio permitido, por defecto <strong>@munchy.com</strong>.</td></tr>
+      <tr><td>Teléfono con WhatsApp</td><td>Obligatorio y en formato internacional, por ejemplo <code>+584121234567</code>.</td></tr>
+      <tr><td>Departamento</td><td>Opcional.</td></tr>
+      <tr><td>Contraseña y confirmación</td><td>Mínimo 8 caracteres.</td></tr>
+      <tr><td>Preguntas de seguridad</td><td>Tres preguntas diferentes con sus respuestas. Se guardan cifradas.</td></tr>
+    </tbody>
+  </table>
+
+  <ol class="steps">
+    <li><strong class="step-title">Completa tus datos</strong> Usa tu nombre real, correo corporativo y número de WhatsApp con código de país.</li>
+    <li><strong class="step-title">Elige tres preguntas</strong> Deben ser diferentes. Responde con datos que recuerdes y que no sean fáciles de adivinar.</li>
+    <li><strong class="step-title">Envía el registro</strong> Verás el mensaje de que tu cuenta quedó pendiente de aprobación.</li>
+    <li><strong class="step-title">Espera la asignación de roles</strong> Un administrador revisará tus datos y te asignará uno o varios roles. Después podrás iniciar sesión.</li>
+  </ol>
+
+  <div class="box warning">
+    <div class="box-title">Importante</div>
+    <p class="mb-0">
+      El autorregistro no otorga acceso automático. Si intentas entrar antes de que te asignen
+      roles, verás el aviso: <em>“Tu registro fue recibido. Un administrador debe asignarte al
+      menos un rol antes de que puedas ingresar.”</em>
+    </p>
+  </div>
+
+  <h3>2.3 Recuperar la contraseña</h3>
+  <ol class="steps">
+    <li><strong class="step-title">Pulsa “¿Olvidaste tu contraseña?”</strong> Está debajo del campo de contraseña, en el login.</li>
+    <li><strong class="step-title">Escribe tu correo corporativo</strong> Si la cuenta está activa y tiene preguntas configuradas, el sistema te mostrará tus tres preguntas.</li>
+    <li><strong class="step-title">Responde las preguntas</strong> No importan las mayúsculas, tildes ni signos. Debes acertar las tres.</li>
+    <li><strong class="step-title">Define una nueva contraseña</strong> Mínimo 8 caracteres. Al guardar podrás iniciar sesión con la nueva clave.</li>
+  </ol>
+  <div class="cols-2">
+    <div class="mini-card"><h4>Duración del proceso</h4><p>La sesión de recuperación caduca a los <strong>15 minutos</strong>. Si tardas más, inicia de nuevo.</p></div>
+    <div class="mini-card"><h4>Límite de intentos</h4><p>Tras varios intentos fallidos, el sistema bloquea temporalmente la recuperación para proteger la cuenta.</p></div>
+  </div>
+
+  <div class="box example">
+    <div class="box-title">Ejemplo práctico</div>
+    <p class="mb-0">
+      Luis olvidó su clave. Entra a <strong>¿Olvidaste tu contraseña?</strong>, escribe
+      <code>luis@munchy.com</code>, responde “firulais”, “Valencia” y “San José” y define
+      <code>NuevaClave2026*</code>. Vuelve al login y ya puede entrar.
+    </p>
+  </div>
+
+  <div class="box tip">
+    <div class="box-title">Consejo de seguridad</div>
+    <ul style="margin-bottom:0">
+      <li>No compartas tu contraseña ni tus respuestas de seguridad.</li>
+      <li>Usa una clave distinta a la de otros sistemas y cámbiala si sospechas que alguien la conoce.</li>
+      <li>Cierra sesión al usar una computadora compartida.</li>
+    </ul>
+  </div>
+  <div class="box benefits">
+    <div class="box-title">Bondades de esta sección</div>
+    <ul>
+      <li>El acceso es autoservicio: cada persona puede registrarse y recuperar su clave sin depender de soporte.</li>
+      <li>El correo corporativo y el WhatsApp mantienen las cuentas vinculadas a la identidad de la empresa.</li>
+      <li>Las preguntas de seguridad protegen la recuperación y evitan que un tercero restablezca la cuenta.</li>
+      <li>El cambio obligatorio de la clave inicial reduce el riesgo de accesos con credenciales compartidas.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 3 -->
+<section>
+  <div class="section-head" data-section="3. Panel de inicio">
+    <p class="eyebrow">Parte I · Manual de usuario</p>
+    <h2>3. Panel de inicio</h2>
+    <p class="lead">Tu punto de partida: qué requiere tu atención, qué reuniones tienes hoy y cómo llegar rápido a cada sección.</p>
+  </div>
+
+  <p>
+    Después de iniciar sesión verás el panel de inicio. La barra azul superior contiene el
+    acceso a <strong>Notificaciones</strong>, <strong>Perfil</strong> y <strong>Soporte</strong>;
+    la franja roja ofrece accesos rápidos a <strong>Nueva solicitud</strong>,
+    <strong>Calendario</strong> y <strong>Salir</strong>. En el teléfono, la navegación
+    inferior mantiene siempre a mano <strong>Inicio</strong>, <strong>Calendario</strong>,
+    <strong>Solicitar</strong>, <strong>Reuniones</strong> y <strong>Más</strong>.
+  </p>
+
+  <h3>Qué significan las tarjetas</h3>
+  <table class="table compact">
+    <thead><tr><th>Tarjeta</th><th>Qué indica</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Por validar (admin)</strong></td><td>Solicitudes que esperan la revisión del administrador. Solo la ve el administrador.</td></tr>
+      <tr><td><strong>Registros por aprobar</strong></td><td>Personas autorregistradas que aún no tienen roles. Aparece cuando hay pendientes.</td></tr>
+      <tr><td><strong>Por autorizar</strong></td><td>Solicitudes que el administrador ya te asignó como jefe autorizador. Solo la ve el autorizador.</td></tr>
+      <tr><td><strong>Mis solicitudes activas</strong></td><td>Solicitudes propias que siguen abiertas o pendientes.</td></tr>
+      <tr><td><strong>Invitaciones próximas</strong></td><td>Reuniones autorizadas a las que fuiste invitado.</td></tr>
+      <tr><td><strong>Salas hoy</strong></td><td>Agenda del día por sala, con accesos para ver el calendario o reservar.</td></tr>
+      <tr><td><strong>Próximas reuniones</strong></td><td>Tus reuniones más cercanas, como organizador o invitado.</td></tr>
+      <tr><td><strong>Accesos rápidos</strong></td><td>Nueva solicitud, disponibilidad y usuarios (según tu rol).</td></tr>
+    </tbody>
+  </table>
+
+  <div class="box benefits">
+    <div class="box-title">Bondades de esta sección</div>
+    <ul>
+      <li>Ves primero lo urgente: solicitudes por validar, autorizaciones pendientes y registros por aprobar.</li>
+      <li>Consultas la agenda del día sin abrir el calendario completo.</li>
+      <li>Llegas a solicitar una sala en un solo toque desde la franja roja o la barra inferior.</li>
+      <li>Detectas de inmediato si tienes invitaciones o reuniones próximas.</li>
+    </ul>
+  </div>
+
+  <div class="box example">
+    <div class="box-title">Ejemplo práctico</div>
+    <p class="mb-0">
+      Son las 8:00 a. m. Ana entra y ve “1 solicitud activa” y “2 invitaciones próximas”.
+      En <strong>Salas hoy</strong> confirma que la Sala Roja está libre a las 3:00 p. m.
+      Pulsa <strong>Solicitar sala</strong> desde la franja roja y comienza su solicitud con la
+      fecha ya cargada.
+    </p>
+  </div>
+
+  <div class="box warning">
+    <div class="box-title">Importante</div>
+    <p class="mb-0">
+      Las tarjetas de administración solo aparecen si tienes ese rol. Si no ves
+      <strong>Por validar</strong> o <strong>Registros por aprobar</strong>, tu cuenta no es de
+      administrador o no hay pendientes en este momento.
+    </p>
+  </div>
+</section>
+
+<!-- 4 -->
+<section>
+  <div class="section-head" data-section="4. Calendario de salas">
+    <p class="eyebrow">Parte I · Manual de usuario</p>
+    <h2>4. Calendario de salas</h2>
+    <p class="lead">Consulta la disponibilidad real por día o por semana, filtra por sala y detecta choques antes de solicitar.</p>
+  </div>
+
+  <h3>4.1 Recorrer el calendario</h3>
+  <ol class="steps">
+    <li><strong class="step-title">Elige Día o Semana</strong> Los botones están en la esquina superior derecha del calendario.</li>
+    <li><strong class="step-title">Cambia de fecha</strong> Usa las flechas laterales, el botón <strong>Hoy</strong> o el selector de fecha.</li>
+    <li><strong class="step-title">Filtra por sala</strong> Pulsa <strong>Todas</strong> o el nombre de una sala (Sala Azul, Sala Blanca, Sala Roja).</li>
+    <li><strong class="step-title">Toca una reunión</strong> Abre el detalle con horario, solicitante, estado y participantes.</li>
+  </ol>
+
+  <h3>4.2 Interpretar los colores</h3>
+  <table class="table compact">
+    <thead><tr><th>Color</th><th>Estado</th><th>Qué significa</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge green">Verde</span></td><td>Autorizada</td><td>La sala está confirmada y bloqueada para ese horario.</td></tr>
+      <tr><td><span class="badge amber">Ámbar</span></td><td>Pendiente del admin</td><td>Hay una solicitud esperando validación del administrador.</td></tr>
+      <tr><td><span class="badge amber">Naranja</span></td><td>Pendiente del jefe</td><td>El administrador ya la validó; falta la decisión del jefe autorizador.</td></tr>
+      <tr><td><span class="badge red">Rojo</span></td><td>Rechazada / Cancelada</td><td>La reunión no se realizará; el espacio puede consultarse para otra solicitud.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="box benefits">
+    <div class="box-title">Bondades de esta sección</div>
+    <ul>
+      <li>Ves la disponibilidad de todas las salas en una sola vista.</li>
+      <li>Detectas a simple vista los horarios libres antes de crear una solicitud.</li>
+      <li>Puedes abrir el detalle de cualquier reunión sin pedir información por otro canal.</li>
+      <li>Si tu rol lo permite, el botón <strong>Solicitar</strong> conserva la fecha y la sala que estabas consultando.</li>
+    </ul>
+  </div>
+
+  <div class="box example">
+    <div class="box-title">Ejemplo práctico</div>
+    <p class="mb-0">
+      Ana necesita una sala el jueves a las 4:00 p. m. Abre el calendario, selecciona
+      <strong>Día</strong>, elige la fecha y filtra <strong>Sala Roja</strong>. Ve un bloque
+      ocupado de 3:00 a 4:30 p. m., así que cambia a la Sala Blanca, que está libre, y pulsa
+      <strong>Solicitar</strong> para iniciar el formulario con esa fecha.
+    </p>
+  </div>
+
+  <div class="box warning">
+    <div class="box-title">Importante</div>
+    <p class="mb-0">
+      El calendario muestra la situación actual. Si dos personas intentan reservar el mismo
+      horario casi al mismo tiempo, el backend aplicará el bloqueo estricto y solo una
+      solicitud podrá avanzar.
+    </p>
+  </div>
+</section>
+
+<!-- 5 -->
+<section>
+  <div class="section-head" data-section="5. Solicitar una sala">
+    <p class="eyebrow">Parte I · Manual de usuario</p>
+    <h2>5. Solicitar una sala</h2>
+    <p class="lead">El formulario principal: selecciona la sala, elige fecha y hora, verifica disponibilidad, invita participantes y envía la solicitud.</p>
+  </div>
+
+  <h3>5.1 Seleccionar la sala</h3>
+  <p>
+    En el paso <strong>1. Selecciona la sala</strong> verás tarjetas con el nombre, la
+    ubicación, la capacidad y el equipamiento. Al elegir una:
+  </p>
+  <ul>
+    <li>La tarjeta se marca con <strong>borde azul, fondo azul claro y un check</strong>.</li>
+    <li>Aparece la etiqueta <strong>“Sala seleccionada”</strong>.</li>
+    <li>Debajo de las tarjetas se muestra el recuadro <strong>“Sala seleccionada: [nombre]”</strong>.</li>
+  </ul>
+
+  <div class="box warning">
+    <div class="box-title">Importante</div>
+    <p class="mb-0">
+      Ninguna sala viene seleccionada por defecto: elige una explícitamente. Así evitas enviar
+      la solicitud a una sala que no querías.
+    </p>
+  </div>
+
+  <h3>5.2 Fecha, hora y duración</h3>
+  <ol class="steps">
+    <li><strong class="step-title">Fecha</strong> Elige el día de la reunión. No se permiten fechas pasadas.</li>
+    <li><strong class="step-title">Hora de inicio</strong> Usa la hora local de Venezuela (UTC-4).</li>
+    <li><strong class="step-title">Duración</strong> Pulsa 30 min, 45 min, 1 hora, 1 h 30 min o 2 horas; también puedes escribir una duración personalizada entre 15 y 480 minutos.</li>
+    <li><strong class="step-title">Revisa la hora de finalización</strong> El sistema la calcula automáticamente.</li>
+  </ol>
+
+  <h3>5.3 Verificación de disponibilidad</h3>
+  <p>
+    Al combinar sala, fecha, hora y duración, MunchyRoom consulta el calendario en tiempo real.
+    El resultado aparece junto a la selección y en el bloque de disponibilidad:
+  </p>
+  <table class="table compact">
+    <thead><tr><th>Resultado</th><th>Qué verás</th><th>Qué hacer</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge green">Disponible</span></td><td>Mensaje verde “Horario disponible”.</td><td>Continúa con el motivo y los participantes.</td></tr>
+      <tr><td><span class="badge red">Ocupada</span></td><td>Tarjeta roja, aviso “Ocupada en ese horario” y alerta roja “No es posible usar este horario”.</td><td>Elige otra sala, otra fecha u otro horario. El botón de envío se desactiva.</td></tr>
+      <tr><td><span class="badge amber">Con solicitud pendiente</span></td><td>Aviso ámbar: hay otra solicitud en revisión.</td><td>Puedes enviarla, pero el administrador deberá resolver el cruce.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="box example">
+    <div class="box-title">Ejemplo práctico: choque de horario</div>
+    <p>
+      Ana elige <strong>Sala Azul</strong> para el 3 de diciembre de 9:00 a 10:00 a. m. La
+      tarjeta se pone roja y aparece: <em>“Ya existe una reunión autorizada en Sala Azul de
+      9:00 AM – 10:00 AM”</em>. El botón <strong>Enviar solicitud</strong> queda desactivado.
+      Ana cambia la hora a 11:00 a. m.; el aviso desaparece y el estado pasa a
+      <strong>Disponible</strong>.
+    </p>
+  </div>
+
+  <h3>5.4 Motivo y participantes</h3>
+  <ol class="steps">
+    <li><strong class="step-title">Escribe el motivo</strong> Sé específico: aparecerá en el calendario y en la convocatoria. Ejemplo: “Revisión mensual de indicadores de producción”.</li>
+    <li><strong class="step-title">Indica la cantidad esperada</strong> Debe ser coherente con la capacidad de la sala.</li>
+    <li><strong class="step-title">Busca y marca invitados</strong> Usa el buscador por nombre o departamento. Cada invitado debe tener rol <strong>participante</strong>.</li>
+    <li><strong class="step-title">Revisa el resumen</strong> A la derecha verás sala, fecha, horario, invitados y el estado inicial.</li>
+    <li><strong class="step-title">Envía la solicitud</strong> Pulsa <strong>Enviar solicitud</strong>. El estado inicial será <strong>Pendiente de administración</strong>.</li>
+  </ol>
+
+  <div class="box benefits">
+    <div class="box-title">Bondades de esta sección</div>
+    <ul>
+      <li>La selección visual evita confundir la sala elegida.</li>
+      <li>La verificación en tiempo real evita enviar solicitudes que serán rechazadas por choque.</li>
+      <li>El cálculo automático de la hora final reduce errores.</li>
+      <li>La búsqueda de participantes acelera la convocatoria y muestra si falta el teléfono.</li>
+      <li>El resumen lateral permite revisar todo antes de enviar.</li>
+    </ul>
+  </div>
+
+  <div class="box tip">
+    <div class="box-title">Buenas prácticas al solicitar</div>
+    <ul style="margin-bottom:0">
+      <li>Consulta el calendario antes de elegir el horario.</li>
+      <li>Verifica que la cantidad de invitados no supere la capacidad de la sala.</li>
+      <li>No incluyas datos sensibles en el motivo; se muestra a los participantes.</li>
+      <li>Si el horario está ocupado, no insistas: elige otra sala u hora.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 6 -->
+<section>
+  <div class="section-head" data-section="6. Mis solicitudes">
+    <p class="eyebrow">Parte I · Manual de usuario</p>
+    <h2>6. Mis solicitudes y cancelación</h2>
+    <p class="lead">Sigue el estado de cada solicitud, revisa la auditoría y cancela únicamente cuando falten más de 24 horas.</p>
+  </div>
+
+  <h3>6.1 Consultar tus solicitudes</h3>
+  <ol class="steps">
+    <li><strong class="step-title">Abre “Mis solicitudes”</strong> Desde el menú lateral, la barra inferior o la tarjeta del panel.</li>
+    <li><strong class="step-title">Filtra por estado</strong> Usa los filtros para ver pendientes, autorizadas, rechazadas o canceladas.</li>
+    <li><strong class="step-title">Abre el detalle</strong> Pulsa una solicitud para ver fecha, sala, horario, participantes, flujo de aprobación y auditoría.</li>
+    <li><strong class="step-title">Imprime si lo necesitas</strong> El botón <strong>Imprimir</strong> genera una versión limpia del detalle.</li>
+  </ol>
+
+  <h3>6.2 Estados de una solicitud</h3>
+  <table class="table compact">
+    <thead><tr><th>Estado</th><th>Significado</th><th>Acción posible</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge amber">Pendiente de administración</span></td><td>Espera la validación del administrador.</td><td>Puedes cancelar si faltan más de 24 h.</td></tr>
+      <tr><td><span class="badge amber">Pendiente de autorización</span></td><td>Ya fue validada; espera al jefe autorizador.</td><td>Puedes cancelar si faltan más de 24 h.</td></tr>
+      <tr><td><span class="badge green">Autorizada</span></td><td>La sala está confirmada y bloqueada.</td><td>Puedes convocar por WhatsApp y cancelar si faltan más de 24 h.</td></tr>
+      <tr><td><span class="badge red">Rechazada</span></td><td>El administrador o el jefe no aprobaron la solicitud.</td><td>Consulta el motivo y crea una nueva si corresponde.</td></tr>
+      <tr><td><span class="badge gray">Cancelada</span></td><td>La reunión fue cancelada y la sala quedó libre.</td><td>No requiere acción; puedes crear otra solicitud.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>6.3 Cancelar una reunión</h3>
+  <ol class="steps">
+    <li><strong class="step-title">Abre el detalle</strong> Entra a la solicitud que deseas cancelar.</li>
+    <li><strong class="step-title">Revisa el tiempo restante</strong> El sistema muestra cuántas horas faltan para el inicio.</li>
+    <li><strong class="step-title">Pulsa “Cancelar reunión”</strong> Si faltan más de 24 horas, verás el formulario de cancelación.</li>
+    <li><strong class="step-title">Escribe el motivo (opcional)</strong> Ayuda a dejar trazabilidad para el equipo.</li>
+    <li><strong class="step-title">Confirma la cancelación</strong> La sala se libera y el estado cambia a <strong>Cancelada</strong>.</li>
+  </ol>
+
+  <div class="box danger">
+    <div class="box-title">Regla de las 24 horas</div>
+    <p class="mb-0">
+      Si faltan 24 horas o menos, el sistema muestra exactamente:
+      <strong>“No es posible cancelar con menos de 24 horas de anticipación”.</strong>
+      En ese caso, contacta al administrador para evaluar una excepción operativa.
+    </p>
+  </div>
+
+  <div class="box example">
+    <div class="box-title">Ejemplo práctico</div>
+    <p class="mb-0">
+      La reunión de Ana es el viernes a las 10:00 a. m. El miércoles a las 9:00 a. m. aún
+      faltan 49 horas: puede cancelar. El jueves a las 3:00 p. m. solo faltan 19 horas: la
+      opción queda bloqueada con el mensaje de las 24 horas.
+    </p>
+  </div>
+
+  <div class="box benefits">
+    <div class="box-title">Bondades de esta sección</div>
+    <ul>
+      <li>Sabes en todo momento en qué etapa está tu solicitud.</li>
+      <li>La auditoría muestra quién validó, quién autorizó y cuándo.</li>
+      <li>La regla de 24 horas protege la planificación de las salas y evita cancelaciones de último minuto.</li>
+      <li>Al cancelar, la sala se libera automáticamente para otra persona.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 7 -->
+<section>
+  <div class="section-head" data-section="7. Reuniones invitadas">
+    <p class="eyebrow">Parte I · Manual de usuario</p>
+    <h2>7. Reuniones invitadas</h2>
+    <p class="lead">Tu agenda personal: reuniones autorizadas en las que participas, con fecha, sala, horario y organizador.</p>
+  </div>
+
+  <p>
+    En <strong>Reuniones invitadas</strong> (o <strong>Reuniones</strong> en la barra inferior)
+    ves las reuniones autorizadas a las que fuiste incluido como participante. El sistema
+    separa <strong>Próximas</strong> y <strong>Anteriores</strong>.
+  </p>
+
+  <ol class="steps">
+    <li><strong class="step-title">Abre la sección</strong> Desde el menú lateral o la barra inferior.</li>
+    <li><strong class="step-title">Revisa las próximas</strong> Cada tarjeta muestra estado, fecha, motivo, sala, horario y quién organiza.</li>
+    <li><strong class="step-title">Abre el detalle</strong> Consulta participantes, flujo de aprobación y auditoría.</li>
+    <li><strong class="step-title">Revisa el historial</strong> Las reuniones pasadas quedan en <strong>Anteriores</strong>.</li>
+  </ol>
+
+  <div class="box benefits">
+    <div class="box-title">Bondades de esta sección</div>
+    <ul>
+      <li>No dependes de mensajes sueltos para saber dónde y cuándo es la reunión.</li>
+      <li>Ves solo las reuniones autorizadas, evitando asistir a reuniones que aún no están confirmadas.</li>
+      <li>Puedes abrir el detalle y confirmar la sala y el horario exactos.</li>
+    </ul>
+  </div>
+
+  <div class="box example">
+    <div class="box-title">Ejemplo práctico</div>
+    <p class="mb-0">
+      Luis recibe una invitación a “Revisión de presupuesto”. Entra a
+      <strong>Reuniones invitadas</strong> y ve la tarjeta con la Sala Blanca, el jueves a las
+      2:00 p. m. y el nombre de Ana como organizadora. Abre el detalle para revisar la agenda.
+    </p>
+  </div>
+</section>
+
+<!-- 8 -->
+<section>
+  <div class="section-head" data-section="8. Convocatoria por WhatsApp">
+    <p class="eyebrow">Parte I · Manual de usuario</p>
+    <h2>8. Convocatoria por WhatsApp</h2>
+    <p class="lead">Cuando la reunión está autorizada, envía el mensaje corporativo a cada participante y lleva el control de enviados.</p>
+  </div>
+
+  <div class="box warning">
+    <div class="box-title">Requisito</div>
+    <p class="mb-0">
+      La convocatoria solo se habilita cuando la solicitud está en estado
+      <strong>Autorizada</strong>. Si aún está pendiente, el sistema te indica que esperes la
+      aprobación.
+    </p>
+  </div>
+
+  <ol class="steps">
+    <li><strong class="step-title">Abre el detalle de la reunión autorizada</strong> En <strong>Mis solicitudes</strong> o en <strong>Reuniones invitadas</strong>.</li>
+    <li><strong class="step-title">Pulsa “Abrir convocatoria”</strong> En el panel <strong>Convocar participantes</strong>, entra a la cola guiada.</li>
+    <li><strong class="step-title">Revisa el mensaje corporativo</strong> Incluye motivo, fecha, hora y sala. Puedes copiarlo con <strong>Copiar mensaje</strong>.</li>
+    <li><strong class="step-title">Envía uno por uno</strong> Pulsa <strong>Enviar WhatsApp</strong> en cada invitado. Se abrirá WhatsApp con el texto precargado; confirma el envío allí.</li>
+    <li><strong class="step-title">Marca el envío</strong> Al volver, el sistema marca al participante como enviado. También puedes usar <strong>Marcar</strong> o <strong>Desmarcar</strong> manualmente.</li>
+    <li><strong class="step-title">Revisa el progreso</strong> El contador muestra cuántos participantes ya fueron convocados.</li>
+  </ol>
+
+  <div class="box example">
+    <div class="box-title">Ejemplo práctico</div>
+    <p class="mb-0">
+      Ana autoriza la reunión y abre la convocatoria. Copia el mensaje general para el grupo
+      y luego envía el mensaje individual a Luis, María y Pedro. Cuando WhatsApp se abre con
+      el texto, ella pulsa enviar y vuelve a MunchyRoom; el sistema registra “3 de 3 enviados”.
+    </p>
+  </div>
+
+  <div class="box benefits">
+    <div class="box-title">Bondades de esta sección</div>
+    <ul>
+      <li>Mensajes consistentes y con toda la información de la reunión.</li>
+      <li>Control de a quién ya se le envió y a quién falta.</li>
+      <li>Enlaces individuales de WhatsApp, sin crear grupos manualmente.</li>
+      <li>Detección de participantes sin teléfono para corregir el dato en Usuarios.</li>
+    </ul>
+  </div>
+
+  <div class="box tip">
+    <div class="box-title">Privacidad</div>
+    <p class="mb-0">
+      MunchyRoom no envía mensajes automáticamente: abre WhatsApp con el texto preparado para
+      que tú confirmes el envío. Revisa que el destinatario sea la persona correcta antes de
+      pulsar enviar.
+    </p>
+  </div>
+</section>
+
+<!-- 9 -->
+<section>
+  <div class="section-head" data-section="9. Autorizaciones">
+    <p class="eyebrow">Parte I · Manual de usuario</p>
+    <h2>9. Autorizaciones del jefe</h2>
+    <p class="lead">Para quienes tienen el rol de Jefe Autorizador: revisa las solicitudes asignadas y da la aprobación final.</p>
+  </div>
+
+  <ol class="steps">
+    <li><strong class="step-title">Abre “Autorizaciones”</strong> En el menú lateral verás el acceso si tienes el rol de autorizador.</li>
+    <li><strong class="step-title">Revisa la solicitud</strong> Consulta motivo, solicitante, sala, fecha, horario, participantes y la nota del administrador.</li>
+    <li><strong class="step-title">Verifica el calendario</strong> Si lo necesitas, abre el detalle completo y revisa la disponibilidad.</li>
+    <li><strong class="step-title">Autoriza o rechaza</strong> Agrega una observación opcional y pulsa <strong>Autorizar sala</strong> o <strong>Rechazar</strong> con el motivo.</li>
+    <li><strong class="step-title">Confirma el resultado</strong> Al autorizar, la sala queda bloqueada y se habilita la convocatoria por WhatsApp. Al rechazar, el solicitante ve el motivo.</li>
+  </ol>
+
+  <div class="box example">
+    <div class="box-title">Ejemplo práctico</div>
+    <p class="mb-0">
+      El administrador envía a la gerente María una solicitud para la Sala Azul. María entra a
+      <strong>Autorizaciones</strong>, revisa que el horario no choque con otra reunión y pulsa
+      <strong>Autorizar sala</strong> con la observación “Aprobado, coordinar coffee break”.
+      Ana recibe la confirmación y ya puede convocar.
+    </p>
+  </div>
+
+  <div class="box benefits">
+    <div class="box-title">Bondades de esta sección</div>
+    <ul>
+      <li>El jefe ve únicamente las solicitudes que le corresponden.</li>
+      <li>La decisión queda registrada con fecha, hora y observación.</li>
+      <li>La aprobación bloquea la sala y evita reservas posteriores en el mismo horario.</li>
+      <li>El historial permite revisar decisiones anteriores.</li>
+    </ul>
+  </div>
+
+  <div class="box warning">
+    <div class="box-title">Importante</div>
+    <p class="mb-0">
+      Un autorizador no puede aprobar solicitudes que no le fueron asignadas. Si necesitas
+      reasignar una solicitud, solicítalo al administrador.
+    </p>
+  </div>
+</section>
+
+<!-- 10 -->
+<section>
+  <div class="section-head" data-section="10. Perfil y contraseña">
+    <p class="eyebrow">Parte I · Manual de usuario</p>
+    <h2>10. Perfil, contraseña y preguntas de seguridad</h2>
+    <p class="lead">Mantén tus datos al día y asegura tu cuenta con preguntas que solo tú puedas responder.</p>
+  </div>
+
+  <ol class="steps">
+    <li><strong class="step-title">Abre tu perfil</strong> Pulsa el avatar o <strong>Perfil</strong> en la barra superior.</li>
+    <li><strong class="step-title">Cambia la contraseña</strong> Escribe la clave actual, la nueva y la confirmación. Mínimo 8 caracteres.</li>
+    <li><strong class="step-title">Configura o actualiza tus preguntas</strong> En la sección <strong>Preguntas de seguridad</strong>, confirma tu contraseña actual y elige tres preguntas diferentes con sus respuestas.</li>
+    <li><strong class="step-title">Guarda los cambios</strong> Verás un mensaje de confirmación.</li>
+  </ol>
+
+  <div class="box example">
+    <div class="box-title">Ejemplo práctico</div>
+    <p class="mb-0">
+      Ana cambió de teléfono y actualiza sus preguntas de seguridad: “nombre de tu primera
+      mascota”, “ciudad donde nació tu madre” y “nombre de tu escuela primaria”. Guarda los
+      cambios y desde ese momento puede recuperar su cuenta sin ayuda del administrador.
+    </p>
+  </div>
+
+  <div class="box benefits">
+    <div class="box-title">Bondades de esta sección</div>
+    <ul>
+      <li>Recuperas el acceso por tu cuenta, sin esperar a un administrador.</li>
+      <li>Las respuestas se guardan cifradas y se comparan sin distinguir mayúsculas ni tildes.</li>
+      <li>Puedes cambiar tus preguntas cuando quieras.</li>
+    </ul>
+  </div>
+
+  <div class="box warning">
+    <div class="box-title">Importante</div>
+    <p class="mb-0">
+      Si nunca configuras preguntas de seguridad, no podrás usar la recuperación automática.
+      En ese caso, el administrador puede restablecer tu contraseña desde la sección de usuarios.
+    </p>
+  </div>
+</section>
+
+<!-- 11 -->
+<section>
+  <div class="section-head" data-section="11. Preguntas frecuentes">
+    <p class="eyebrow">Parte I · Manual de usuario</p>
+    <h2>11. Preguntas frecuentes del usuario</h2>
+    <p class="lead">Respuestas rápidas a las situaciones más comunes.</p>
+  </div>
+
+  <h3>No puedo iniciar sesión</h3>
+  <ul>
+    <li><strong>Mi registro está pendiente:</strong> un administrador debe asignarte al menos un rol. Si ya pasó un tiempo, contacta al administrador.</li>
+    <li><strong>Olvidé mi contraseña:</strong> usa <strong>¿Olvidaste tu contraseña?</strong> y responde tus preguntas de seguridad.</li>
+    <li><strong>No configuré preguntas:</strong> pide al administrador que restablezca tu clave.</li>
+    <li><strong>Mi cuenta está inactiva:</strong> el administrador debe activarla.</li>
+  </ul>
+
+  <h3>No puedo cancelar</h3>
+  <p>
+    Solo se permite cancelar con <strong>más de 24 horas</strong> de anticipación y mientras la
+    solicitud esté pendiente o autorizada. Si faltan 24 horas o menos, verás:
+    <strong>“No es posible cancelar con menos de 24 horas de anticipación”.</strong>
+  </p>
+
+  <h3>No aparece el botón de WhatsApp</h3>
+  <p>
+    La convocatoria solo se habilita cuando la reunión está <strong>Autorizada</strong>. Si
+    sigue pendiente, espera la aprobación del administrador y del jefe autorizador.
+  </p>
+
+  <h3>La sala aparece ocupada</h3>
+  <p>
+    El calendario tiene una reunión autorizada, en autorización final o una solicitud
+    pendiente. Cambia de sala, fecha u horario. El formulario te mostrará el detalle del
+    conflicto y desactivará el envío mientras la sala esté ocupada.
+  </p>
+
+  <h3>¿Puedo tener varios roles?</h3>
+  <p>
+    Sí. Un usuario puede ser participante y solicitante, o incluso administrador. Los permisos
+    se acumulan. El administrador los asigna desde <strong>Usuarios</strong>.
+  </p>
+
+  <h3>¿En qué zona horaria se guardan las reuniones?</h3>
+  <p>
+    Todas las fechas y horas usan <strong>America/Caracas (UTC-4)</strong>. Aunque entres desde
+    otro país, la aplicación muestra y valida la hora de Venezuela.
+  </p>
+
+  <h3>¿Puedo usar MunchyRoom sin internet?</h3>
+  <p>
+    La aplicación es instalable y guarda recursos para abrir la pantalla offline, pero
+    <strong>crear o validar solicitudes requiere conexión</strong> para consultar la
+    disponibilidad real.
+  </p>
+
+  <div class="box example">
+    <div class="box-title">Ejemplo práctico de interpretación</div>
+    <p class="mb-0">
+      Ana ve una tarjeta <strong>Pendiente de autorización</strong>. Eso significa que el
+      administrador ya validó su solicitud y ahora espera la decisión del jefe. No debe crear
+      otra solicitud para el mismo horario: puede consultar el detalle y esperar.
+    </p>
+  </div>
+  <div class="box benefits">
+    <div class="box-title">Bondades de esta sección</div>
+    <ul>
+      <li>Resuelves las dudas más comunes sin abrir un ticket de soporte.</li>
+      <li>Entiendes el significado de cada estado y sabes cuál es el siguiente paso.</li>
+      <li>Identificas cuándo el problema es de permisos, de fechas o de conectividad.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ==================================================================== -->
+<!-- PARTE II                                                             -->
+<!-- ==================================================================== -->
+<section class="part-cover">
+  <p class="kicker">Parte II</p>
+  <div class="big-number">02</div>
+  <h1>Manual de administrador</h1>
+  <p>
+    Aprobación de registros, asignación de roles, gestión de salas y cargos, validación de
+    solicitudes y control operativo del sistema.
+  </p>
+  <div class="part-list">
+    <span>12 · Rol y responsabilidades</span><span>13 · Primer ingreso</span>
+    <span>14 · Panel del administrador</span><span>15 · Gestión de solicitudes</span>
+    <span>16 · Gestión de salas</span><span>17 · Usuarios y registros</span>
+    <span>18 · Catálogo de cargos</span><span>19 · Seguridad y operación</span>
+    <span>20 · Solución de problemas</span><span>Apéndices</span>
+  </div>
+</section>
+
+<!-- 12 -->
+<section>
+  <div class="section-head" data-section="12. Rol del administrador">
+    <p class="eyebrow">Parte II · Manual de administrador</p>
+    <h2>12. Rol y responsabilidades</h2>
+    <p class="lead">El administrador (o webmaster) es el responsable de que el sistema refleje la operación real de las salas.</p>
+  </div>
+
+  <p>
+    El rol <strong>admin</strong> tiene acceso a la configuración y a la validación de
+    solicitudes. Puede combinarse con otros roles: un administrador también puede solicitar
+    salas, ser participante o autorizador. Ese diseño permite que una persona con varias
+    responsabilidades use una sola cuenta.
+  </p>
+
+  <table class="table compact">
+    <thead><tr><th>Responsabilidad</th><th>Dónde se hace</th><th>Frecuencia sugerida</th></tr></thead>
+    <tbody>
+      <tr><td>Aprobar registros y asignar roles</td><td>Usuarios → Pendientes de roles</td><td>Diaria</td></tr>
+      <tr><td>Validar solicitudes y asignar jefe autorizador</td><td>Solicitudes → Validar y enviar</td><td>Diaria / según demanda</td></tr>
+      <tr><td>Resolver cruces de horario</td><td>Calendario y detalle de solicitud</td><td>Según alertas</td></tr>
+      <tr><td>Mantener salas y equipamiento</td><td>Salas</td><td>Mensual o cuando cambie la infraestructura</td></tr>
+      <tr><td>Mantener cargos y jerarquías</td><td>Cargos</td><td>Cuando cambie la estructura</td></tr>
+      <tr><td>Revisar usuarios inactivos y roles</td><td>Usuarios</td><td>Mensual</td></tr>
+      <tr><td>Seguridad, respaldos y credenciales</td><td>Render, Neon y Perfil</td><td>Periódica</td></tr>
+    </tbody>
+  </table>
+
+  <div class="box benefits">
+    <div class="box-title">Bondades del rol administrador</div>
+    <ul>
+      <li>Una sola persona puede mantener actualizada la estructura de salas, usuarios y cargos.</li>
+      <li>La validación centralizada evita reservas duplicadas y decisiones inconsistentes.</li>
+      <li>El sistema deja trazabilidad de cada aprobación y rechazo.</li>
+      <li>Los permisos se asignan por rol y se pueden combinar según la realidad del equipo.</li>
+    </ul>
+  </div>
+
+  <div class="box warning">
+    <div class="box-title">Principio de mínimo privilegio</div>
+    <p class="mb-0">
+      Asigna el rol <strong>admin</strong> solo a quienes realmente necesitan configurar el
+      sistema. Para el resto, usa los roles operativos. Revisa periódicamente quién tiene
+      permisos de administración.
+    </p>
+  </div>
+</section>
+
+<!-- 13 -->
+<section>
+  <div class="section-head" data-section="13. Primer ingreso">
+    <p class="eyebrow">Parte II · Manual de administrador</p>
+    <h2>13. Primer ingreso y puesta en marcha</h2>
+    <p class="lead">Deja el sistema listo para el equipo en una sola sesión de configuración.</p>
+  </div>
+
+  <ol class="steps">
+    <li><strong class="step-title">Inicia sesión con la cuenta inicial</strong> Usa el correo del administrador configurado en el despliegue (<code>admin@munchy.com</code>) y la contraseña inicial entregada. No compartas esa clave.</li>
+    <li><strong class="step-title">Cambia la contraseña</strong> El sistema te obliga a hacerlo en el primer ingreso. Usa una clave larga y única.</li>
+    <li><strong class="step-title">Configura tus preguntas de seguridad</strong> En la misma pantalla de cambio de contraseña, elige tres preguntas y guarda las respuestas.</li>
+    <li><strong class="step-title">Revisa las salas</strong> Verifica nombres, ubicación, capacidad y equipamiento. Ajusta o crea las salas necesarias.</li>
+    <li><strong class="step-title">Revisa los cargos</strong> Confirma el catálogo y la jerarquía; los usuarios pueden vincularse a un cargo.</li>
+    <li><strong class="step-title">Crea o aprueba usuarios</strong> Asigna roles según la función: participante, solicitante, autorizador o admin.</li>
+    <li><strong class="step-title">Haz una prueba completa</strong> Crea una solicitud de prueba, valídala, asígnala a un autorizador y confirma que la convocatoria se habilite.</li>
+  </ol>
+
+  <div class="box example">
+    <div class="box-title">Ejemplo práctico de puesta en marcha</div>
+    <p class="mb-0">
+      El webmaster entra con la cuenta inicial, cambia la clave, configura sus preguntas,
+      confirma las tres salas, revisa el catálogo de cargos y aprueba a Ana (solicitante +
+      participante), a María (autorizadora + solicitante) y a Luis (participante). Luego crea
+      una solicitud de prueba y la autoriza para verificar el flujo completo.
+    </p>
+  </div>
+
+  <div class="box tip">
+    <div class="box-title">Credenciales y seguridad</div>
+    <p class="mb-0">
+      La contraseña inicial se define con la variable <code>SEED_ADMIN_PASSWORD</code> en el
+      despliegue. Si no la tienes, solicita el restablecimiento al responsable técnico. Nunca
+      publiques la clave en documentos compartidos ni en mensajes grupales.
+    </p>
+  </div>
+  <div class="box benefits">
+    <div class="box-title">Bondades de esta sección</div>
+    <ul>
+      <li>El sistema queda operativo en una sola sesión de configuración.</li>
+      <li>Los usuarios reciben roles coherentes desde el inicio, evitando accesos incompletos.</li>
+      <li>La prueba de extremo a extremo detecta a tiempo la falta de autorizadores o de salas.</li>
+      <li>La contraseña y las preguntas del administrador quedan aseguradas antes de compartir la URL.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 14 -->
+<section>
+  <div class="section-head" data-section="14. Panel del administrador">
+    <p class="eyebrow">Parte II · Manual de administrador</p>
+    <h2>14. Panel del administrador</h2>
+    <p class="lead">Una vista rápida de la operación diaria y de lo que requiere tu intervención.</p>
+  </div>
+
+  <p>
+    Además de las tarjetas generales, el administrador ve indicadores específicos:
+  </p>
+  <div class="cols-3">
+    <div class="mini-card"><h4>Por validar (admin)</h4><p>Solicitudes nuevas que esperan tu revisión de disponibilidad.</p></div>
+    <div class="mini-card"><h4>Registros por aprobar</h4><p>Usuarios autorregistrados que todavía no tienen roles.</p></div>
+    <div class="mini-card"><h4>Salas hoy</h4><p>Agenda del día por sala, con acceso directo al calendario.</p></div>
+  </div>
+
+  <h3>Rutina diaria recomendada</h3>
+  <ul class="checklist">
+    <li>Revisa <strong>Registros por aprobar</strong> y asigna roles a las cuentas verificadas.</li>
+    <li>Abre <strong>Solicitudes</strong> con estado <strong>Pendiente admin</strong>.</li>
+    <li>Verifica el calendario antes de escalar cada solicitud.</li>
+    <li>Designa al jefe autorizador correcto y agrega una nota si hay condiciones especiales.</li>
+    <li>Revisa las solicitudes rechazadas o canceladas para detectar patrones.</li>
+    <li>Confirma que exista al menos un jefe autorizador activo.</li>
+  </ul>
+
+  <div class="box benefits">
+    <div class="box-title">Bondades de esta sección</div>
+    <ul>
+      <li>Detectas en segundos qué necesita tu atención.</li>
+      <li>Evitas que las solicitudes queden estancadas sin jefe autorizador.</li>
+      <li>Priorizas la aprobación de usuarios nuevos para que puedan trabajar.</li>
+    </ul>
+  </div>
+
+  <div class="box example">
+    <div class="box-title">Ejemplo práctico</div>
+    <p class="mb-0">
+      Al iniciar la mañana, el administrador ve “3 registros por aprobar” y “2 por validar
+      (admin)”. Primero aprueba los registros con roles claros; luego revisa las dos
+      solicitudes, verifica el calendario y las envía al jefe correspondiente.
+    </p>
+  </div>
+</section>
+
+<!-- 15 -->
+<section>
+  <div class="section-head" data-section="15. Gestión de solicitudes">
+    <p class="eyebrow">Parte II · Manual de administrador</p>
+    <h2>15. Gestión de solicitudes</h2>
+    <p class="lead">Validar, escalar, rechazar, reasignar y cancelar con criterio y trazabilidad.</p>
+  </div>
+
+  <h3>15.1 Revisar y escalar</h3>
+  <ol class="steps">
+    <li><strong class="step-title">Entra a Solicitudes</strong> Filtra por <strong>Pendiente admin</strong> o busca por motivo, solicitante o correo.</li>
+    <li><strong class="step-title">Abre el detalle o usa “Verificar calendario”</strong> Confirma que la sala y el horario sean correctos.</li>
+    <li><strong class="step-title">Pulsa “Validar y enviar a autorización”</strong> Selecciona al jefe autorizador y agrega una nota si hace falta.</li>
+    <li><strong class="step-title">Envía</strong> La solicitud pasa a <strong>Pendiente de autorización</strong> y el jefe la verá en su panel.</li>
+  </ol>
+
+  <h3>15.2 Resolver cruces de horario</h3>
+  <p>
+    Si existe otra solicitud <strong>Pendiente de administración</strong> en el mismo horario
+    y sala, el sistema impide escalar la nueva hasta resolver el cruce. Debes rechazar o
+    cancelar una de las solicitudes, o pedir al solicitante que cambie el horario.
+  </p>
+
+  <div class="box example">
+    <div class="box-title">Ejemplo práctico de cruce</div>
+    <p class="mb-0">
+      Ana y Luis solicitan la Sala Roja el viernes a las 9:00 a. m. Ambas están pendientes de
+      administración. El administrador no puede enviar las dos al jefe: primero confirma con
+      Ana que su reunión es la prioritaria, rechaza la de Luis con el motivo “Cruce de horario”
+      y luego escala la de Ana.
+    </p>
+  </div>
+
+  <h3>15.3 Rechazar y reasignar</h3>
+  <ul>
+    <li><strong>Rechazar:</strong> usa el formulario <strong>Rechazar solicitud</strong> y escribe el motivo. El solicitante lo verá en el detalle.</li>
+    <li><strong>Reasignar:</strong> si la solicitud ya está pendiente de autorización, puedes cambiarla a otro jefe desde <strong>Reasignar autorizador</strong>.</li>
+    <li><strong>Cancelar:</strong> como administrador también puedes cancelar con la regla de más de 24 horas.</li>
+  </ul>
+
+  <div class="box warning">
+    <div class="box-title">Criterios de validación</div>
+    <ul style="margin-bottom:0">
+      <li>La sala debe estar libre y ser adecuada para la cantidad de participantes.</li>
+      <li>El horario debe ser futuro y coherente con la operación.</li>
+      <li>El motivo debe ser claro y suficiente para el jefe autorizador.</li>
+      <li>El jefe asignado debe tener relación con el área o la decisión.</li>
+    </ul>
+  </div>
+
+  <div class="box benefits">
+    <div class="box-title">Bondades de esta sección</div>
+    <ul>
+      <li>El administrador controla el cuello de botella real: la validación de disponibilidad.</li>
+      <li>Las notas y motivos de rechazo reducen las conversaciones ambiguas.</li>
+      <li>La reasignación permite corregir un jefe equivocado sin reiniciar la solicitud.</li>
+      <li>Todo queda auditado con usuario y fecha.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 16 -->
+<section>
+  <div class="section-head" data-section="16. Gestión de salas">
+    <p class="eyebrow">Parte II · Manual de administrador</p>
+    <h2>16. Gestión de salas</h2>
+    <p class="lead">Mantén el catálogo de salas actualizado para que la disponibilidad y el calendario reflejen la realidad.</p>
+  </div>
+
+  <h3>16.1 Crear una sala</h3>
+  <ol class="steps">
+    <li><strong class="step-title">Entra a Salas</strong> En el menú de administración.</li>
+    <li><strong class="step-title">Pulsa “Nueva sala”</strong> Completa nombre, ubicación, capacidad y equipamiento.</li>
+    <li><strong class="step-title">Define la capacidad</strong> Entre 1 y 200 personas. Se usa para validar la cantidad esperada.</li>
+    <li><strong class="step-title">Escribe el equipamiento</strong> Separa los elementos con comas: <code>Videobeam, Pantalla TV 65", Wi-Fi</code>.</li>
+    <li><strong class="step-title">Guarda</strong> La sala aparece en el calendario y en el formulario de solicitud si está activa.</li>
+  </ol>
+
+  <div class="box example">
+    <div class="box-title">Ejemplo práctico</div>
+    <p class="mb-0">
+      La empresa habilita una nueva sala en el piso 4. El administrador crea “Sala Ejecutiva”,
+      ubicación “Sede Principal · Piso 4”, capacidad 10, equipamiento “Pantalla TV 65",
+      Videoconferencia, Wi-Fi” y la deja activa. Desde ese momento aparece en el calendario y
+      en las solicitudes.
+    </p>
+  </div>
+
+  <h3>16.2 Editar, desactivar y reactivar</h3>
+  <ul>
+    <li><strong>Editar:</strong> cambia nombre, ubicación, capacidad o equipamiento. Los cambios se reflejan en las nuevas vistas.</li>
+    <li><strong>Desactivar:</strong> la sala deja de estar disponible para nuevas solicitudes y para el calendario activo. Las reservas existentes conservan su historial.</li>
+    <li><strong>Activar:</strong> vuelve a habilitarla.</li>
+  </ul>
+
+  <div class="box warning">
+    <div class="box-title">Antes de desactivar</div>
+    <p class="mb-0">
+      Revisa si la sala tiene reuniones autorizadas próximas. Desactivarla no cancela esas
+      reuniones automáticamente; coordina con los solicitantes y actualiza el calendario.
+    </p>
+  </div>
+
+  <div class="box benefits">
+    <div class="box-title">Bondades de esta sección</div>
+    <ul>
+      <li>El catálogo se mantiene alineado con la infraestructura real.</li>
+      <li>La capacidad y el equipamiento ayudan a elegir la sala correcta.</li>
+      <li>Desactivar una sala en mantenimiento evita reservas imposibles.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 17 -->
+<section>
+  <div class="section-head" data-section="17. Usuarios y registros">
+    <p class="eyebrow">Parte II · Manual de administrador</p>
+    <h2>17. Usuarios, registros y roles</h2>
+    <p class="lead">Aprueba autorregistros, asigna uno o varios roles y mantén las cuentas actualizadas.</p>
+  </div>
+
+  <h3>17.1 Revisar registros pendientes</h3>
+  <ol class="steps">
+    <li><strong class="step-title">Entra a Usuarios</strong> El aviso superior indica cuántos registros están pendientes de roles.</li>
+    <li><strong class="step-title">Pulsa “Ver pendientes”</strong> o filtra por estado <strong>Pendientes de roles</strong>.</li>
+    <li><strong class="step-title">Verifica los datos</strong> Nombre, correo corporativo, teléfono WhatsApp, departamento, fecha de registro y preguntas de seguridad.</li>
+    <li><strong class="step-title">Pulsa “Asignar roles”</strong> Marca uno o varios roles y guarda.</li>
+    <li><strong class="step-title">Aprueba o rechaza</strong> Al guardar con al menos un rol, la cuenta puede iniciar sesión. Si no corresponde, usa <strong>Rechazar</strong> para dejarla inactiva.</li>
+  </ol>
+
+  <div class="box example">
+    <div class="box-title">Ejemplo práctico de aprobación</div>
+    <p class="mb-0">
+      Ana se registró como solicitante y participante. El administrador abre su registro,
+      confirma el correo <code>ana@munchy.com</code> y el teléfono, marca
+      <strong>Participante</strong> y <strong>Solicitante / Anfitrión</strong>, y guarda. Ana ya
+      puede iniciar sesión con la contraseña que eligió.
+    </p>
+  </div>
+
+  <h3>17.2 Roles que puedes combinar</h3>
+  <table class="table compact">
+    <thead><tr><th>Combinación</th><th>Uso típico</th></tr></thead>
+    <tbody>
+      <tr><td>Participante + Solicitante</td><td>Persona que organiza reuniones y también asiste a otras.</td></tr>
+      <tr><td>Solicitante + Autorizador</td><td>Jefe que solicita sus propias salas y aprueba las de su equipo.</td></tr>
+      <tr><td>Participante + Autorizador</td><td>Jefe que asiste a reuniones y autoriza las asignadas.</td></tr>
+      <tr><td>Administrador + Solicitante</td><td>Webmaster que también organiza reuniones.</td></tr>
+      <tr><td>Todos los roles</td><td>Casos especiales de coordinación general; úsalo con criterio.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>17.3 Crear y editar usuarios</h3>
+  <ol class="steps">
+    <li><strong class="step-title">Nuevo usuario</strong> Usa <strong>Nuevo usuario</strong> si la persona no se autorregistró. Completa nombre, correo, WhatsApp, departamento, cargo y roles.</li>
+    <li><strong class="step-title">Contraseña inicial</strong> Define una clave temporal de al menos 8 caracteres. El usuario deberá cambiarla en su primer ingreso.</li>
+    <li><strong class="step-title">Editar</strong> Puedes corregir datos, cambiar roles, activar/desactivar la cuenta o restablecer la contraseña.</li>
+    <li><strong class="step-title">Preguntas de seguridad</strong> La ficha indica si el usuario ya las configuró; si no, puede hacerlo en <strong>Cambiar contraseña</strong>.</li>
+  </ol>
+
+  <div class="box warning">
+    <div class="box-title">Protecciones del sistema</div>
+    <ul style="margin-bottom:0">
+      <li>No puedes desactivar tu propio usuario.</li>
+      <li>No puedes quitarte a ti mismo el rol de administrador.</li>
+      <li>Debe existir al menos un administrador activo en el sistema.</li>
+      <li>El correo debe ser único; el teléfono debe tener formato internacional.</li>
+    </ul>
+  </div>
+
+  <div class="box benefits">
+    <div class="box-title">Bondades de esta sección</div>
+    <ul>
+      <li>El autorregistro reduce el trabajo de creación manual de cuentas.</li>
+      <li>La aprobación por roles garantiza que nadie entra sin autorización.</li>
+      <li>Los permisos se adaptan a personas con varias responsabilidades.</li>
+      <li>La ficha centraliza teléfono, cargo, departamento y estado de seguridad.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 18 -->
+<section>
+  <div class="section-head" data-section="18. Catálogo de cargos">
+    <p class="eyebrow">Parte II · Manual de administrador</p>
+    <h2>18. Catálogo de cargos</h2>
+    <p class="lead">Organiza los cargos y su jerarquía para clasificar a los usuarios y facilitar la asignación de autorizadores.</p>
+  </div>
+
+  <ol class="steps">
+    <li><strong class="step-title">Entra a Cargos</strong> En el menú de administración.</li>
+    <li><strong class="step-title">Crea un cargo</strong> Escribe el nombre y un nivel jerárquico entre 1 y 10.</li>
+    <li><strong class="step-title">Edita o desactiva</strong> Puedes actualizar el nombre y el nivel, o desactivar cargos que ya no se usan.</li>
+    <li><strong class="step-title">Vincula usuarios</strong> En la ficha del usuario, selecciona el cargo del catálogo. El título se sincroniza automáticamente.</li>
+  </ol>
+
+  <div class="box example">
+    <div class="box-title">Ejemplo práctico</div>
+    <p class="mb-0">
+      La empresa crea el cargo “Coordinador de Logística” con nivel 2. Luego, al editar el
+      usuario de Luis, el administrador selecciona ese cargo y el título se actualiza en su
+      perfil y en las convocatorias.
+    </p>
+  </div>
+
+  <div class="box benefits">
+    <div class="box-title">Bondades de esta sección</div>
+    <ul>
+      <li>Uniformiza los nombres de cargos y evita variaciones manuales.</li>
+      <li>La jerarquía ayuda a identificar jefes y responsables.</li>
+      <li>Al cambiar el nombre de un cargo, se actualiza en los usuarios vinculados.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 19 -->
+<section>
+  <div class="section-head" data-section="19. Seguridad y operación">
+    <p class="eyebrow">Parte II · Manual de administrador</p>
+    <h2>19. Seguridad y operación</h2>
+    <p class="lead">Buenas prácticas para proteger las cuentas, los datos y la continuidad del servicio.</p>
+  </div>
+
+  <h3>19.1 Cuentas y permisos</h3>
+  <ul class="checklist">
+    <li>Cambia la contraseña inicial del administrador y configura sus preguntas de seguridad.</li>
+    <li>No compartas cuentas: cada persona debe tener la suya para conservar la auditoría.</li>
+    <li>Revisa mensualmente quién tiene rol <strong>admin</strong> y retira accesos innecesarios.</li>
+    <li>Desactiva inmediatamente las cuentas de personas que salen de la empresa.</li>
+    <li>Asigna <strong>autorizador</strong> solo a quienes tienen potestad real de aprobación.</li>
+  </ul>
+
+  <h3>19.2 Reglas de negocio que debes conocer</h3>
+  <table class="table compact">
+    <thead><tr><th>Regla</th><th>Comportamiento</th></tr></thead>
+    <tbody>
+      <tr><td>Solapamiento</td><td>Una sala no puede tener dos reuniones bloqueantes en el mismo horario.</td></tr>
+      <tr><td>Estados bloqueantes</td><td><strong>Pendiente de autorización</strong> y <strong>Autorizada</strong> bloquean la sala.</td></tr>
+      <tr><td>Pendiente de administración</td><td>No bloquea de forma definitiva, pero impide escalar otra solicitud del mismo horario.</td></tr>
+      <tr><td>Cancelación</td><td>Solo con más de 24 horas de anticipación.</td></tr>
+      <tr><td>WhatsApp</td><td>Solo se habilita para reuniones autorizadas.</td></tr>
+      <tr><td>Zona horaria</td><td>America/Caracas (UTC-4) en toda la lógica.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>19.3 Infraestructura y respaldo</h3>
+  <ul>
+    <li><strong>Neon PostgreSQL:</strong> base de datos del sistema. Revisa periódicamente el uso y los respaldos del proyecto.</li>
+    <li><strong>Render:</strong> servicio web. En el plan gratuito puede tardar unos segundos en reactivarse tras inactividad.</li>
+    <li><strong>Variables de entorno:</strong> <code>DATABASE_URL</code>, <code>SECRET_KEY</code>, <code>CORPORATE_EMAIL_DOMAINS</code> y las credenciales del seed deben mantenerse protegidas.</li>
+    <li><strong>SECRET_KEY:</strong> si se cambia, todas las sesiones activas se invalidan; es útil ante un incidente de seguridad.</li>
+  </ul>
+
+  <div class="box danger">
+    <div class="box-title">Nunca hagas esto</div>
+    <ul style="margin-bottom:0">
+      <li>Publicar contraseñas, tokens o cadenas de conexión en el repositorio, en capturas o en chats grupales.</li>
+      <li>Eliminar usuarios o salas para “limpiar” el historial: desactívalos.</li>
+      <li>Compartir una cuenta de administrador entre varias personas.</li>
+    </ul>
+  </div>
+
+  <div class="box benefits">
+    <div class="box-title">Bondades de una buena administración</div>
+    <ul>
+      <li>Menos riesgo de accesos no autorizados y de pérdida de información.</li>
+      <li>Mayor confianza del equipo en la agenda y en las aprobaciones.</li>
+      <li>Continuidad operativa ante vacaciones, rotación o incidencias técnicas.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 20 -->
+<section>
+  <div class="section-head" data-section="20. Problemas del administrador">
+    <p class="eyebrow">Parte II · Manual de administrador</p>
+    <h2>20. Solución de problemas</h2>
+    <p class="lead">Diagnóstico rápido de las incidencias más frecuentes.</p>
+  </div>
+
+  <table class="table compact">
+    <thead><tr><th>Síntoma</th><th>Causa probable</th><th>Solución</th></tr></thead>
+    <tbody>
+      <tr><td>Un usuario no puede entrar y ve “registro pendiente”.</td><td>La cuenta no tiene roles asignados.</td><td>Usuarios → Pendientes de roles → Asignar roles.</td></tr>
+      <tr><td>Un usuario aparece inactivo.</td><td>Su cuenta fue desactivada o rechazada.</td><td>Edita el usuario y activa la cuenta; asigna roles si corresponde.</td></tr>
+      <tr><td>No se puede escalar una solicitud.</td><td>Existe otra solicitud pendiente de administración en el mismo horario.</td><td>Resuelve el cruce: rechaza o cancela una, o cambia el horario.</td></tr>
+      <tr><td>No hay jefes autorizadores disponibles.</td><td>Ningún usuario activo tiene el rol autorizador.</td><td>Crea o activa un usuario y asigna el rol Jefe Autorizador.</td></tr>
+      <tr><td>El jefe no ve una solicitud.</td><td>Fue asignada a otra persona o aún no se envió.</td><td>Revisa el detalle y reasigna al jefe correcto.</td></tr>
+      <tr><td>No aparece el botón de WhatsApp.</td><td>La reunión no está autorizada.</td><td>Completa el flujo de validación y autorización.</td></tr>
+      <tr><td>Un participante no recibe la convocatoria.</td><td>No tiene teléfono registrado.</td><td>Edita el usuario y agrega el WhatsApp en formato internacional.</td></tr>
+      <tr><td>No se puede cancelar.</td><td>Faltan 24 horas o menos.</td><td>Muestra la regla y evalúa una excepción operativa.</td></tr>
+      <tr><td>El sistema tarda en abrir.</td><td>El servicio de Render estaba inactivo (plan gratuito).</td><td>Espera unos segundos y recarga; el arranque en frío es normal.</td></tr>
+      <tr><td>Error de base de datos.</td><td>Neon suspendido, URL incorrecta o credenciales vencidas.</td><td>Verifica <code>DATABASE_URL</code> y el estado del proyecto en Neon.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="box example">
+    <div class="box-title">Ejemplo práctico de diagnóstico</div>
+    <p class="mb-0">
+      Un usuario reporta que no puede entrar. El administrador revisa Usuarios, ve que su
+      cuenta está activa pero sin roles. Abre la ficha, marca Participante y Solicitante, guarda
+      y le pide reintentar. El usuario ya puede ingresar.
+    </p>
+  </div>
+
+  <div class="box tip">
+    <div class="box-title">Orden de diagnóstico recomendado</div>
+    <ol style="margin-bottom:0">
+      <li>¿La cuenta existe, está activa y tiene roles?</li>
+      <li>¿El correo y el teléfono son correctos?</li>
+      <li>¿La solicitud está en el estado esperado?</li>
+      <li>¿Hay un jefe autorizador activo?</li>
+      <li>¿El problema es de conectividad o del servicio en Render?</li>
+    </ol>
+  </div>
+  <div class="box benefits">
+    <div class="box-title">Bondades de esta sección</div>
+    <ul>
+      <li>Resuelves la mayoría de las incidencias sin escalar a soporte técnico.</li>
+      <li>Distingues entre un problema de permisos, de reglas de negocio o de infraestructura.</li>
+      <li>Documentas la causa y la solución para futuras incidencias.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ==================================================================== -->
+<!-- APÉNDICES                                                            -->
+<!-- ==================================================================== -->
+<section>
+  <div class="section-head" data-section="A. Matriz de roles">
+    <p class="eyebrow">Apéndices</p>
+    <h2>A. Matriz de roles y permisos</h2>
+    <p class="lead">Referencia rápida para asignar permisos con criterio.</p>
+  </div>
+
+  <table class="table">
+    <thead><tr><th>Acción</th><th>Participante</th><th>Solicitante</th><th>Autorizador</th><th>Admin</th></tr></thead>
+    <tbody>
+      <tr><td>Consultar calendario y disponibilidad</td><td>Sí</td><td>Sí</td><td>Sí</td><td>Sí</td></tr>
+      <tr><td>Crear solicitud de sala</td><td>No</td><td>Sí</td><td>Según combinación</td><td>Sí</td></tr>
+      <tr><td>Cancelar solicitud propia (&gt; 24 h)</td><td>No</td><td>Sí</td><td>Si la creó</td><td>Sí</td></tr>
+      <tr><td>Convocar por WhatsApp (autorizada)</td><td>No</td><td>Sí, si organiza</td><td>No</td><td>Sí</td></tr>
+      <tr><td>Autorizar o rechazar solicitudes asignadas</td><td>No</td><td>No</td><td>Sí</td><td>No*</td></tr>
+      <tr><td>Validar y escalar solicitudes</td><td>No</td><td>No</td><td>No</td><td>Sí</td></tr>
+      <tr><td>Gestionar salas, usuarios y cargos</td><td>No</td><td>No</td><td>No</td><td>Sí</td></tr>
+      <tr><td>Ver reuniones invitadas</td><td>Sí</td><td>Sí</td><td>Sí</td><td>Sí</td></tr>
+    </tbody>
+  </table>
+  <p class="small muted">* El administrador no aprueba como jefe; su función es validar y asignar. Puede tener además el rol autorizador si se le asigna.</p>
+
+  <div class="box tip">
+    <div class="box-title">Cómo leer la matriz</div>
+    <p class="mb-0">
+      Los permisos se acumulan: si una persona tiene varios roles, puede hacer la unión de sus
+      acciones. Por eso es importante asignar solo los roles necesarios.
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="section-head" data-section="B. Estados y reglas">
+    <p class="eyebrow">Apéndices</p>
+    <h2>B. Estados, reglas y validaciones</h2>
+    <p class="lead">El comportamiento exacto que debes esperar del sistema.</p>
+  </div>
+
+  <h3>B.1 Flujo de estados</h3>
+  <div class="flow">
+    <div class="node start"><span class="n">Inicio</span><strong>Pendiente de administración</strong></div>
+    <div class="arrow">→</div>
+    <div class="node mid"><span class="n">Validada</span><strong>Pendiente de autorización</strong></div>
+    <div class="arrow">→</div>
+    <div class="node ok"><span class="n">Final feliz</span><strong>Autorizada</strong></div>
+  </div>
+  <p class="small muted">
+    Desde cualquier estado abierto se puede llegar a <strong>Rechazada</strong> (por admin o
+    jefe) o <strong>Cancelada</strong> (por solicitante o admin, con más de 24 h).
+  </p>
+
+  <h3>B.2 Reglas críticas</h3>
+  <table class="table compact">
+    <thead><tr><th>Regla</th><th>Detalle</th></tr></thead>
+    <tbody>
+      <tr><td>Correo corporativo</td><td>El autorregistro exige un dominio permitido; por defecto @munchy.com.</td></tr>
+      <tr><td>WhatsApp obligatorio</td><td>El teléfono debe incluir código de país y formato internacional.</td></tr>
+      <tr><td>Preguntas de seguridad</td><td>Tres preguntas distintas; respuestas cifradas; recuperación con caducidad de 15 minutos.</td></tr>
+      <tr><td>Roles</td><td>Un usuario puede tener varios; el autorregistro no tiene roles hasta que el admin los asigne.</td></tr>
+      <tr><td>Solapamiento</td><td>No se permite otra reunión bloqueante en la misma sala, fecha y horario.</td></tr>
+      <tr><td>Capacidad</td><td>La cantidad esperada no debe superar la capacidad de la sala.</td></tr>
+      <tr><td>Cancelación</td><td>Solo con más de 24 horas y en estados abiertos.</td></tr>
+      <tr><td>WhatsApp</td><td>Solo para reuniones autorizadas.</td></tr>
+      <tr><td>Zona horaria</td><td>America/Caracas (UTC-4).</td></tr>
+    </tbody>
+  </table>
+
+  <div class="box warning">
+    <div class="box-title">Mensaje exacto de cancelación</div>
+    <p class="mb-0"><strong>“No es posible cancelar con menos de 24 horas de anticipación”.</strong> Es la respuesta oficial del sistema y se muestra tanto en la interfaz como en el servidor.</p>
+  </div>
+</section>
+
+<section>
+  <div class="section-head" data-section="C. Glosario">
+    <p class="eyebrow">Apéndices</p>
+    <h2>C. Glosario</h2>
+    <p class="lead">Términos que aparecen en la aplicación y en este manual.</p>
+  </div>
+
+  <table class="table compact">
+    <thead><tr><th>Término</th><th>Significado</th></tr></thead>
+    <tbody>
+      <tr><td>Solicitud</td><td>Petición de una sala para una fecha, hora, duración y participantes.</td></tr>
+      <tr><td>Reserva / reunión autorizada</td><td>Solicitud que ya recibió la aprobación final del jefe autorizador.</td></tr>
+      <tr><td>Sala</td><td>Espacio físico configurado con capacidad, ubicación y equipamiento.</td></tr>
+      <tr><td>Jefe autorizador</td><td>Persona con potestad de dar la aprobación final.</td></tr>
+      <tr><td>Administrador / webmaster</td><td>Responsable de la configuración y validación del sistema.</td></tr>
+      <tr><td>Participante</td><td>Persona invitada a una reunión.</td></tr>
+      <tr><td>Solicitante / anfitrión</td><td>Persona que crea y organiza la solicitud.</td></tr>
+      <tr><td>Disponibilidad</td><td>Resultado de la consulta de choques para una sala y horario.</td></tr>
+      <tr><td>Bloqueo estricto</td><td>Regla que impide dos reservas incompatibles en la misma sala.</td></tr>
+      <tr><td>Convocatoria</td><td>Envío del mensaje de la reunión a los participantes por WhatsApp.</td></tr>
+      <tr><td>PWA</td><td>Aplicación web instalable con comportamiento similar a una app nativa.</td></tr>
+      <tr><td>UTC-4</td><td>Zona horaria de Venezuela (America/Caracas).</td></tr>
+    </tbody>
+  </table>
+
+  <div class="box tip">
+    <div class="box-title">Soporte</div>
+    <p class="mb-0">
+      Para soporte técnico o mejoras del sistema, visita
+      <strong>https://jeanrodriguez.onrender.com</strong>.
+      <br><strong>Soluciones de Automatización a la Medida.</strong>
+    </p>
+  </div>
+
+  <div class="center" style="margin-top:12mm">
+    <img src="../app/static/img/logo.png" alt="Alimentos Munchy" style="height:14mm;width:auto">
+    <p class="small muted" style="margin-top:3mm">MunchyRoom · Alimentos Munchy, C.A. · Manual versión 1.0 · Noviembre de 2026</p>
+  </div>
+</section>
+
+</body>
+</html>
