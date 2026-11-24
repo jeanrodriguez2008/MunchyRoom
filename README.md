@@ -35,6 +35,7 @@ Construido con **FastAPI + Jinja2 + Tailwind CSS + Alpine.js** sobre **PostgreSQ
 - **100 % Mobile-First**: navegación inferior táctil, botones de mínimo 44 px, tarjetas, modales tipo *bottom-sheet* y vistas adaptadas a tablet y escritorio.
 - **PWA instalable**: manifiesto, iconos, *service worker* con caché de estáticos y página offline. Se puede instalar en Android/iOS como app.
 - **Calendario diario y semanal por sala**, con pestañas rápidas entre las 3 salas corporativas y bloques coloreados por estado.
+- **Selección visual de sala** en el formulario de solicitud y **validación de disponibilidad en tiempo real** con alertas por choque de fecha u hora.
 - **Bloqueo estricto de solapamientos en backend** (no solo en la interfaz).
 - **Flujo de doble validación** de 3 pasos con estados auditables.
 - **Regla de cancelación de 24 horas** validada en servidor e interfaz.

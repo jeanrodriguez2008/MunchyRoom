@@ -142,6 +142,73 @@ input[type="time"]::-webkit-date-and-time-value {
   }
 }
 
+/* Tarjetas de selección de sala del formulario de reserva. */
+.room-option {
+  position: relative;
+  border-width: 2px;
+  transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+}
+.room-option:hover {
+  border-color: #cbd5e1;
+}
+.room-option:focus-within {
+  outline: 2px solid rgba(0, 51, 160, 0.45);
+  outline-offset: 2px;
+}
+.room-option:has(input:checked) {
+  border-color: var(--munchy-blue);
+  background-color: #eef3ff;
+  box-shadow: 0 0 0 3px rgba(0, 51, 160, 0.14), 0 12px 26px -20px rgba(0, 51, 160, 0.5);
+}
+/* Respaldo para navegadores sin :has(), controlado por Alpine. */
+.room-option.room-selected {
+  border-color: var(--munchy-blue);
+  background-color: #eef3ff;
+  box-shadow: 0 0 0 3px rgba(0, 51, 160, 0.14), 0 12px 26px -20px rgba(0, 51, 160, 0.5);
+}
+.room-option:has(input:checked) .room-icon,
+.room-option.room-selected .room-icon {
+  background-color: var(--munchy-blue);
+  color: #fff;
+}
+.room-option:has(input:checked) .room-name,
+.room-option.room-selected .room-name {
+  color: var(--munchy-blue);
+}
+.room-option .room-check-badge {
+  display: none;
+}
+.room-option:has(input:checked) .room-check-badge,
+.room-option.room-selected .room-check-badge {
+  display: inline-flex;
+}
+.room-option .room-selected-label {
+  visibility: hidden;
+}
+.room-option:has(input:checked) .room-selected-label,
+.room-option.room-selected .room-selected-label {
+  visibility: visible;
+}
+
+/* Conflicto de horario en la sala seleccionada. */
+.room-option.room-conflict,
+.room-option:has(input:checked).room-conflict {
+  border-color: #f87171 !important;
+  background-color: #fef2f2 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.16) !important;
+}
+.room-option.room-conflict .room-icon {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+.room-option:has(input:checked).room-conflict .room-icon {
+  background-color: #dc2626;
+  color: #fff;
+}
+.room-option.room-conflict .room-name {
+  color: #b91c1c;
+}
+
 /* Impresión del detalle de reunión. */
 @media print {
   aside,

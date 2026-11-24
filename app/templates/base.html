@@ -71,6 +71,9 @@
     }
   </style>
   <link rel="stylesheet" href="/static/css/app.css">
+  <!-- Los componentes de Alpine deben existir antes de que Alpine inicialice. -->
+  <script src="/static/js/app.js" defer></script>
+  <script src="/static/js/whatsapp.js" defer></script>
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
   {% block head_extra %}{% endblock %}
 </head>
@@ -248,7 +251,6 @@
 </div>
 {% endif %}
 
-<script src="/static/js/app.js" defer></script>
 {% block scripts %}{% endblock %}
 </body>
 </html>

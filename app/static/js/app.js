@@ -59,6 +59,7 @@
       submitting: false,
       checkResult: null,
       _timer: null,
+      _seq: 0,
 
       get room() {
         var current = this;
@@ -90,12 +91,21 @@
 
       check: function () {
         var self = this;
+        window.clearTimeout(this._timer);
+
+        // Invalida cualquier respuesta anterior, incluso si los campos se vaciaron.
+        var seq = this._seq + 1;
+        this._seq = seq;
+
         if (!this.roomId || !this.date || !this.start || !this.duration) {
           this.checkResult = null;
+          this.checking = false;
           return;
         }
-        window.clearTimeout(this._timer);
+
         this.checking = true;
+        this.checkResult = null;
+
         this._timer = window.setTimeout(function () {
           var params = new URLSearchParams({
             room_id: self.roomId,
@@ -109,10 +119,12 @@
           })
             .then(function (response) { return response.json(); })
             .then(function (data) {
+              if (seq !== self._seq) return;
               data.pending = data.pending || [];
               self.checkResult = data;
             })
             .catch(function () {
+              if (seq !== self._seq) return;
               self.checkResult = {
                 ok: false,
                 hard_conflict: true,
@@ -120,7 +132,9 @@
                 message: "No se pudo verificar la disponibilidad. Revisa tu conexión."
               };
             })
-            .finally(function () { self.checking = false; });
+            .finally(function () {
+              if (seq === self._seq) self.checking = false;
+            });
         }, 350);
       },
 
