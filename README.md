@@ -70,6 +70,11 @@ Construido con **FastAPI + Jinja2 + Tailwind CSS + Alpine.js** sobre **PostgreSQ
 | Ámbar (pendiente de administración) | `amber` |
 | Naranja (pendiente de autorización) | `orange` |
 
+**Logotipos y pie de página**
+
+- Encabezado: `app/static/img/logo.png` (logotipo de Alimentos Munchy) se muestra en la barra superior de todas las pantallas, tanto autenticadas como públicas.
+- Pie de página: `app/static/img/logoJR.png` enlaza a <https://jeanrodriguez.onrender.com> y lleva debajo el lema **“Soluciones de Automatización a la Medida”**. Se incluye mediante `app/templates/partials/brand_footer.html` en todas las vistas.
+
 ---
 
 ## 3. Estructura del proyecto
