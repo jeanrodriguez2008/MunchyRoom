@@ -3,7 +3,7 @@ services:
     name: munchyroom
     runtime: python
     plan: free
-    region: oregon
+    region: virginia
     branch: main
     autoDeploy: true
     buildCommand: pip install --upgrade pip && pip install -r requirements.txt
