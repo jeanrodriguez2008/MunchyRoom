@@ -1,7 +1,7 @@
 /* MunchyRoom · Service Worker (PWA).
    Estrategia: network-first para navegación (nunca cachea HTML autenticado),
    cache-first para estáticos propios y fallback offline. */
-const CACHE_NAME = "munchyroom-v2";
+const CACHE_NAME = "munchyroom-v3";
 const OFFLINE_URL = "/offline";
 const PRECACHE = [
   "/static/css/app.css",
@@ -10,6 +10,7 @@ const PRECACHE = [
   "/static/icons/icon.svg",
   "/static/icons/icon-maskable.svg",
   "/static/img/logo.png",
+  "/static/img/logo-white.png",
   "/static/img/logoJR.png",
   "/manifest.webmanifest",
   OFFLINE_URL

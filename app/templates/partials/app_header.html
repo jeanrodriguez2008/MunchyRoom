@@ -1,0 +1,84 @@
+{# Encabezado principal para pantallas autenticadas.
+   Barra azul fija + marca MUNCHYROOM + franja roja de acciones. #}
+<header class="sticky top-0 z-30 border-b border-white/10 bg-munchy-blue text-white">
+  <div class="relative mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
+    <a href="/" class="flex shrink-0 items-center gap-2 lg:invisible" aria-label="MunchyRoom · Inicio">
+      <img src="/static/img/logo-white.png" alt="Alimentos Munchy"
+           width="89" height="40" class="h-8 w-auto sm:h-9">
+    </a>
+
+    <a href="/" title="Ir al inicio"
+       class="absolute left-1/2 hidden -translate-x-1/2 items-center gap-2 rounded-full bg-white px-4 py-1.5 text-xs font-bold text-munchy-blue shadow-sm transition hover:bg-blue-50 sm:inline-flex">
+      <span class="flex h-5 w-5 items-center justify-center rounded-full bg-munchy-red text-white">
+        <svg class="h-3 w-3"><use href="#i-building"></use></svg>
+      </span>
+      MunchyRoom
+    </a>
+
+    <div class="flex shrink-0 items-center gap-0.5 sm:gap-1">
+      <a href="/my-meetings" class="header-action" title="Notificaciones e invitaciones" aria-label="Notificaciones">
+        <svg class="h-5 w-5"><use href="#i-bell"></use></svg>
+        <span class="hidden lg:inline">Notificaciones</span>
+      </a>
+      <a href="/auth/password" class="header-action" title="Mi perfil">
+        <span class="flex h-7 w-7 items-center justify-center rounded-full bg-white/15 text-[10px] font-bold ring-1 ring-white/40">{{ user.initials }}</span>
+        <span class="hidden md:inline">Perfil</span>
+      </a>
+      <a href="https://jeanrodriguez.onrender.com" target="_blank" rel="noopener noreferrer"
+         class="header-action hidden md:inline-flex" title="Soporte técnico">
+        <svg class="h-5 w-5"><use href="#i-headset"></use></svg>
+        <span class="hidden lg:inline">Soporte</span>
+      </a>
+      <button type="button" @click="more = true" class="header-action lg:hidden" aria-label="Abrir menú">
+        <svg class="h-5 w-5"><use href="#i-menu"></use></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="no-print relative overflow-hidden bg-munchy-blue text-white">
+  <div class="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-white/5"></div>
+  <div class="pointer-events-none absolute -bottom-24 left-10 h-64 w-64 rounded-full bg-munchy-red/20"></div>
+
+  <!-- Marca principal -->
+  <div class="relative mx-auto flex max-w-7xl flex-col items-center gap-3 px-4 pb-5 pt-4 sm:flex-row sm:gap-5 sm:px-6 sm:pb-6 sm:pt-5 lg:px-8">
+    <div class="munchy-emblem relative" aria-hidden="true">
+      <span class="absolute left-1/2 top-[37%] -translate-x-1/2 -translate-y-1/2 font-display text-3xl font-extrabold leading-none text-munchy-red sm:text-4xl">M</span>
+    </div>
+    <div class="text-center sm:text-left">
+      <p class="font-display text-3xl font-extrabold uppercase leading-none tracking-tight sm:text-4xl lg:text-5xl">
+        <span class="text-white">Munchy</span><span class="text-munchy-red">Room</span>
+      </p>
+      <svg viewBox="0 0 240 10" class="mx-auto mt-2 h-2 w-40 text-munchy-red sm:mx-0 sm:w-52" fill="none" aria-hidden="true">
+        <path d="M2 7C58 2 181 3 238 6" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+      </svg>
+      <p class="mt-1 text-[9px] font-semibold uppercase tracking-[0.28em] text-blue-200 sm:text-[10px]">
+        Alimentos Munchy, C.A.
+      </p>
+    </div>
+  </div>
+
+  <!-- Franja de acciones -->
+  <div class="relative bg-munchy-red">
+    <div class="mx-auto flex max-w-7xl flex-col items-center gap-2 px-4 py-2 sm:flex-row sm:justify-between sm:px-6 lg:px-8">
+      <p class="text-center text-[10px] font-bold uppercase tracking-[0.18em] text-white sm:text-left sm:text-[11px]">
+        Gestión de salas de reuniones
+      </p>
+      <div class="flex w-full min-w-0 max-w-full items-center justify-center gap-2 overflow-x-auto pb-0.5 sm:w-auto sm:justify-end">
+        {% if user.is_admin or user.has_role(Role.REQUESTER) %}
+        <a href="/reservations/new" class="header-strip-btn">
+          <svg class="h-3.5 w-3.5"><use href="#i-plus"></use></svg> Nueva solicitud
+        </a>
+        {% endif %}
+        <a href="/calendar" class="header-strip-btn">
+          <svg class="h-3.5 w-3.5"><use href="#i-calendar"></use></svg> Calendario
+        </a>
+        <form method="post" action="/auth/logout">
+          <button type="submit" class="header-strip-btn">
+            <svg class="h-3.5 w-3.5"><use href="#i-logout"></use></svg> Salir
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

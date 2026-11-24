@@ -78,6 +78,70 @@ input[type="time"]::-webkit-date-and-time-value {
   }
 }
 
+/* ---------------------------------------------------------------------------
+   Encabezado principal (estilo MunchyRoom)
+   --------------------------------------------------------------------------- */
+.header-action {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 0.75rem;
+  padding: 0.4rem 0.55rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.88);
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.header-action:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
+
+.header-strip-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+  border-radius: 0.6rem;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.35rem 0.65rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #fff;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+.header-strip-btn:hover {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: #fff;
+}
+
+/* Casa corporativa del encabezado: silueta blanca con puerta recortada. */
+.munchy-emblem {
+  width: 4.25rem;
+  height: 4.25rem;
+  flex-shrink: 0;
+  background: #fff;
+  clip-path: polygon(
+    50% 0%,
+    100% 31%,
+    100% 100%,
+    65% 100%,
+    65% 62%,
+    35% 62%,
+    35% 100%,
+    0% 100%,
+    0% 31%
+  );
+}
+@media (max-width: 640px) {
+  .munchy-emblem {
+    width: 3.4rem;
+    height: 3.4rem;
+  }
+}
+
 /* Impresión del detalle de reunión. */
 @media print {
   aside,
