@@ -248,8 +248,11 @@
     </div>
 
     <div class="ready" id="ready">
+      <p class="status" style="margin-bottom:6px">
+        <strong>Reconectando automáticamente…</strong>
+      </p>
       <p class="status" style="margin-bottom:12px">
-        El servicio debería estar listo. Pulsa <strong>Reconectar</strong> para volver a entrar.
+        No necesitas hacer nada. Si la página no se recarga, pulsa <strong>Reconectar</strong>.
       </p>
       <button type="button" class="btn" id="reconnect">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -286,6 +289,8 @@
       var readyEl = document.getElementById("ready");
       var button = document.getElementById("reconnect");
       var timer = null;
+      var reloadTimer = null;
+      var finished = false;
 
       function render() {
         var elapsed = (Date.now() - start) / 1000;
@@ -296,16 +301,24 @@
         secondsTextEl.textContent = String(remaining);
         barEl.style.width = progress.toFixed(2) + "%";
 
-        if (remaining <= 0) {
+        if (remaining <= 0 && !finished) {
+          finished = true;
           window.clearInterval(timer);
           countdownArea.classList.add("hidden");
           statusEl.classList.add("hidden");
           readyEl.classList.add("visible");
-          button.focus();
+
+          // Reconexión automática: el botón queda solo como respaldo.
+          reloadTimer = window.setTimeout(function () {
+            window.location.reload();
+          }, 800);
         }
       }
 
       button.addEventListener("click", function () {
+        if (reloadTimer) {
+          window.clearTimeout(reloadTimer);
+        }
         window.location.reload();
       });
 

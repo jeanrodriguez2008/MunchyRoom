@@ -402,7 +402,7 @@ Confirma que **`.env` no aparece como archivo a subir**. Si aparece, revisa `.gi
 - La primera petición puede tardar ~30 s si el servicio gratuito está dormido.
 - La app crea las tablas y ejecuta el seed automáticamente al arrancar (no necesitas correr `seed.py` en Render).
 
-> **Nota sobre el plan gratuito de Render:** el servicio se suspende tras un periodo de inactividad y se reactiva con la siguiente petición. El arranque en frío reintenta la conexión a Neon hasta 5 veces. Si la aplicación ya está instalada o fue visitada antes, el service worker muestra la pantalla **“Servidor en Descanso”** con una cuenta regresiva de 60 segundos y el botón **Reconectar**.
+> **Nota sobre el plan gratuito de Render:** el servicio se suspende tras un periodo de inactividad y se reactiva con la siguiente petición. El arranque en frío reintenta la conexión a Neon hasta 5 veces. Si la aplicación ya está instalada o fue visitada antes, el service worker muestra la pantalla **“Servidor en Descanso”** con una cuenta regresiva de 60 segundos y **reconexión automática** (el botón **Reconectar** queda como respaldo).
 
 ---
 
@@ -576,7 +576,7 @@ El proyecto usa `expire_on_commit=False` y `lazy="joined"`/`selectin` en las rel
 Confirma `TZ=America/Caracas` y que el contenedor tenga `tzdata` (incluido en `requirements.txt`). La app usa `ZoneInfo("America/Caracas")` explícitamente, por lo que no depende del reloj del sistema.
 
 ### Render tarda en responder la primera vez
-Es el arranque en frío del plan gratuito. El endpoint `/healthz` permite monitorearlo; puedes usar un *ping* externo para mantenerlo activo. En equipos donde la app ya fue visitada, el service worker reemplaza la pantalla de Render por **“Servidor en Descanso”**, con 60 segundos de cuenta regresiva y el botón **Reconectar**.
+Es el arranque en frío del plan gratuito. El endpoint `/healthz` permite monitorearlo; puedes usar un *ping* externo para mantenerlo activo. En equipos donde la app ya fue visitada, el service worker reemplaza la pantalla de Render por **“Servidor en Descanso”**, con 60 segundos de cuenta regresiva y **reconexión automática** (el botón **Reconectar** queda como respaldo).
 
 ### El service worker sirve una versión antigua
 Sube el número de versión en `app/static/sw.js` (`CACHE_NAME`) y recarga. En desarrollo puedes desregistrarlo desde DevTools → Application → Service Workers.
