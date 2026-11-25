@@ -1,13 +1,14 @@
 """Modelos de datos (PostgreSQL / SQLAlchemy 2.0).
 
 Tablas: users, user_roles, user_security_answers, webmaster_accounts, positions,
-meeting_rooms, reservations, reservation_participants.
+departments, meeting_rooms, reservations, reservation_participants.
 
 Reglas de integridad relevantes:
 - email único por usuario.
 - un usuario no puede repetir el mismo rol (UNIQUE user_id + role_name).
 - un usuario no puede repetir la misma pregunta de seguridad.
 - la cuenta webmaster se marca en una tabla aparte y se oculta a los administradores.
+- los departamentos son un catálogo único; el usuario guarda el nombre del departamento.
 - un participante no puede repetirse dentro de la misma reserva.
 - índice compuesto para consultas de solapamiento por sala/fecha/estado.
 """
@@ -202,6 +203,26 @@ class Position(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(120), nullable=False)
     hierarchy_level: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=utc_now, server_default=func.now(), nullable=False
+    )
+
+
+class Department(Base):
+    """Catálogo de departamentos de la empresa.
+
+    El usuario guarda el nombre del departamento en ``users.department`` para
+    conservar la compatibilidad con el resto de la aplicación. Al renombrar un
+    departamento, el panel de administración sincroniza ese campo en los
+    usuarios vinculados.
+    """
+
+    __tablename__ = "departments"
+    __table_args__ = (UniqueConstraint("name", name="uq_departments_name"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    name: Mapped[str] = mapped_column(String(120), nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=utc_now, server_default=func.now(), nullable=False

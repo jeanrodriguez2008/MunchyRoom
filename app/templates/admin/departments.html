@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% block title %}Departamentos{% endblock %}
+
+{% block content %}
+<div class="mb-5">
+  <p class="text-xs font-semibold uppercase tracking-wider text-munchy-red">Administración</p>
+  <h1 class="mt-1 font-display text-2xl font-extrabold text-munchy-ink sm:text-3xl">Departamentos</h1>
+  <p class="mt-1 text-sm text-slate-500">
+    Crea y administra las áreas de la empresa. Cada usuario debe pertenecer a un departamento
+    y ese dato acompaña sus solicitudes e invitaciones.
+  </p>
+</div>
+
+<div class="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-3">
+  <div class="stat-card">
+    <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-munchy-blue">
+      <svg class="h-5 w-5"><use href="#i-building"></use></svg>
+    </span>
+    <div>
+      <p class="text-2xl font-extrabold text-munchy-ink">{{ total_departments }}</p>
+      <p class="text-xs font-medium text-slate-500">Departamentos</p>
+    </div>
+  </div>
+  <div class="stat-card">
+    <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+      <svg class="h-5 w-5"><use href="#i-check-circle"></use></svg>
+    </span>
+    <div>
+      <p class="text-2xl font-extrabold text-munchy-ink">{{ active_departments }}</p>
+      <p class="text-xs font-medium text-slate-500">Activos</p>
+    </div>
+  </div>
+  <div class="stat-card col-span-2 lg:col-span-1">
+    <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
+      <svg class="h-5 w-5"><use href="#i-users"></use></svg>
+    </span>
+    <div>
+      <p class="text-2xl font-extrabold text-munchy-ink">{{ total_assigned }}</p>
+      <p class="text-xs font-medium text-slate-500">Usuarios asignados</p>
+    </div>
+  </div>
+</div>
+
+<div class="grid gap-5 lg:grid-cols-3">
+  <section class="card card-pad lg:col-span-2">
+    <div class="mb-3">
+      <h2 class="section-title">Departamentos registrados</h2>
+      <p class="mt-1 text-xs text-slate-500">
+        Los conteos usan el departamento actual de cada usuario. Al renombrar un departamento,
+        se actualiza también en las cuentas vinculadas.
+      </p>
+    </div>
+
+    {% if rows %}
+    <div class="space-y-3">
+      {% for row in rows %}
+      {% set department = row.department %}
+      <article class="rounded-xl border border-slate-200 p-3 {% if not department.is_active %}opacity-75{% endif %}">
+        <form method="post" action="/admin/departments/{{ department.id }}" class="flex flex-col gap-2 sm:flex-row sm:items-end">
+          <div class="flex-1">
+            <label for="department_name_{{ department.id }}" class="label text-[11px]">Departamento</label>
+            <input id="department_name_{{ department.id }}" name="name" value="{{ department.name }}"
+                   required maxlength="120" class="field field-sm">
+          </div>
+          <button type="submit" class="btn btn-secondary btn-sm" title="Guardar cambios">
+            <svg class="h-4 w-4"><use href="#i-check"></use></svg> Guardar
+          </button>
+        </form>
+
+        <div class="mt-2 flex flex-wrap items-center gap-1.5">
+          {% if department.is_active %}
+          <span class="badge border-emerald-200 bg-emerald-50 text-emerald-700">
+            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>Activo
+          </span>
+          {% else %}
+          <span class="badge border-slate-200 bg-slate-100 text-slate-500">Inactivo</span>
+          {% endif %}
+          <span class="chip">{{ row.users }} usuario(s) activo(s)</span>
+          <span class="chip">{{ row.requests }} solicitud(es)</span>
+          <span class="chip">{{ row.invitations }} reunión(es) como invitado</span>
+        </div>
+
+        <div class="mt-2 flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-2">
+          <div class="flex flex-wrap gap-3 text-[11px] font-bold text-munchy-blue">
+            <a href="/admin/users?department={{ department.name|urlencode }}" class="hover:underline">Ver usuarios</a>
+            <a href="/admin/requests?department={{ department.name|urlencode }}" class="hover:underline">Ver solicitudes</a>
+          </div>
+          <form method="post" action="/admin/departments/{{ department.id }}/toggle"
+                data-confirm="¿{{ 'Desactivar' if department.is_active else 'Activar' }} el departamento «{{ department.name }}»?">
+            <button type="submit" class="btn {% if department.is_active %}btn-ghost{% else %}btn-success{% endif %} btn-sm">
+              {{ 'Desactivar' if department.is_active else 'Activar' }}
+            </button>
+          </form>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center">
+      <p class="font-semibold text-slate-700">No hay departamentos registrados</p>
+      <p class="mt-1 text-xs text-slate-500">Crea el primero desde el formulario de la derecha.</p>
+    </div>
+    {% endif %}
+  </section>
+
+  <aside class="space-y-4">
+    <form method="post" action="/admin/departments" class="card card-pad space-y-3">
+      <h2 class="section-title">Nuevo departamento</h2>
+      <div>
+        <label for="new_department_name" class="label">Nombre</label>
+        <input id="new_department_name" name="name" type="text" required maxlength="120"
+               class="field" placeholder="Ej.: Compras">
+      </div>
+      <p class="hint">
+        Se habilitará de inmediato en el registro de usuarios y en la ficha de cada persona.
+      </p>
+      <button type="submit" class="btn btn-primary w-full">
+        <svg class="h-5 w-5"><use href="#i-plus"></use></svg> Crear departamento
+      </button>
+    </form>
+
+    <section class="rounded-2xl border border-blue-100 bg-blue-50 p-4 text-[11px] leading-relaxed text-blue-800">
+      <p class="font-bold">Control por departamento</p>
+      <ul class="mt-1.5 list-disc space-y-1 pl-4">
+        <li>El departamento se elige al crear o registrar un usuario.</li>
+        <li>Al solicitar una sala, el área del solicitante queda vinculada a la solicitud.</li>
+        <li>En las invitaciones se conserva el departamento de cada participante.</li>
+        <li>Los conteos de esta pantalla permiten ver la actividad por área.</li>
+      </ul>
+    </section>
+  </aside>
+</div>
+{% endblock %}

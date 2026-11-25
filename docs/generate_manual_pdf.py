@@ -31,7 +31,7 @@ admin_sections = [
     "15. Gestión de solicitudes",
     "16. Gestión de salas",
     "17. Usuarios, registros y roles",
-    "18. Catálogo de cargos",
+    "18. Catálogo de cargos y departamentos",
     "19. Seguridad y operación",
     "20. Solución de problemas",
 ]
@@ -75,7 +75,10 @@ def main() -> None:
     # Números de página en el índice (página 3).
     toc_page = doc[2]
     right = 595.0 - 42.52  # margen derecho de 15 mm
-    toc_labels = {"10. Perfil, contraseña y preguntas de seguridad": "Perfil, contraseña y preguntas"}
+    toc_labels = {
+        "10. Perfil, contraseña y preguntas de seguridad": "Perfil, contraseña y preguntas",
+        "18. Catálogo de cargos y departamentos": "Catálogos de cargos y departamentos",
+    }
 
     for heading in user_sections + admin_sections + appendix_sections:
         title = toc_labels.get(heading, heading.split(". ", 1)[-1])

@@ -510,7 +510,7 @@
   <div class="toc-row" data-toc="15. Gestión de solicitudes"><span class="toc-num">15</span><span class="toc-text">Gestión de solicitudes</span><span class="toc-dots"></span><span class="toc-page"></span></div>
   <div class="toc-row" data-toc="16. Gestión de salas"><span class="toc-num">16</span><span class="toc-text">Gestión de salas</span><span class="toc-dots"></span><span class="toc-page"></span></div>
   <div class="toc-row" data-toc="17. Usuarios, registros y roles"><span class="toc-num">17</span><span class="toc-text">Usuarios, registros y roles</span><span class="toc-dots"></span><span class="toc-page"></span></div>
-  <div class="toc-row" data-toc="18. Catálogo de cargos"><span class="toc-num">18</span><span class="toc-text">Catálogo de cargos</span><span class="toc-dots"></span><span class="toc-page"></span></div>
+  <div class="toc-row" data-toc="18. Catálogo de cargos y departamentos"><span class="toc-num">18</span><span class="toc-text">Catálogos de cargos y departamentos</span><span class="toc-dots"></span><span class="toc-page"></span></div>
   <div class="toc-row" data-toc="19. Seguridad y operación"><span class="toc-num">19</span><span class="toc-text">Seguridad y operación</span><span class="toc-dots"></span><span class="toc-page"></span></div>
   <div class="toc-row" data-toc="20. Solución de problemas"><span class="toc-num">20</span><span class="toc-text">Solución de problemas</span><span class="toc-dots"></span><span class="toc-page"></span></div>
 
@@ -655,7 +655,7 @@
       <tr><td>Nombre y apellido</td><td>Mínimo 3 caracteres.</td></tr>
       <tr><td>Correo corporativo</td><td>Debe pertenecer a un dominio permitido, por defecto <strong>@munchy.com</strong>.</td></tr>
       <tr><td>Teléfono con WhatsApp</td><td>Obligatorio y en formato internacional, por ejemplo <code>+584121234567</code>.</td></tr>
-      <tr><td>Departamento</td><td>Obligatorio. Indica el área o departamento al que perteneces; el formulario ofrece sugerencias.</td></tr>
+      <tr><td>Departamento</td><td>Obligatorio. Selecciona tu área del catálogo de departamentos que administra la empresa.</td></tr>
       <tr><td>Contraseña y confirmación</td><td>Mínimo 8 caracteres.</td></tr>
       <tr><td>Preguntas de seguridad</td><td>Tres preguntas diferentes con sus respuestas. Se guardan cifradas.</td></tr>
     </tbody>
@@ -1592,12 +1592,13 @@
 
 <!-- 18 -->
 <section>
-  <div class="section-head" data-section="18. Catálogo de cargos">
+  <div class="section-head" data-section="18. Catálogo de cargos y departamentos">
     <p class="eyebrow">Parte II · Manual de administrador</p>
-    <h2>18. Catálogo de cargos</h2>
-    <p class="lead">Organiza los cargos y su jerarquía para clasificar a los usuarios y facilitar la asignación de autorizadores.</p>
+    <h2>18. Catálogo de cargos y departamentos</h2>
+    <p class="lead">Organiza los cargos y los departamentos para clasificar a los usuarios y controlar la actividad por área.</p>
   </div>
 
+  <h3>18.1 Catálogo de cargos</h3>
   <ol class="steps">
     <li><strong class="step-title">Entra a Cargos</strong> En el menú de administración.</li>
     <li><strong class="step-title">Crea un cargo</strong> Escribe el nombre y un nivel jerárquico entre 1 y 10.</li>
@@ -1621,6 +1622,50 @@
       <li>La jerarquía ayuda a identificar jefes y responsables.</li>
       <li>Al cambiar el nombre de un cargo, se actualiza en los usuarios vinculados.</li>
     </ul>
+  </div>
+
+  <h3>18.2 Catálogo de departamentos</h3>
+  <p>
+    Cada usuario debe pertenecer a un departamento. El catálogo permite mantener nombres
+    consistentes y controlar cuántas personas, solicitudes e invitaciones hay por área.
+  </p>
+  <ol class="steps">
+    <li><strong class="step-title">Entra a Departamentos</strong> En el menú de administración, junto a Usuarios y Cargos.</li>
+    <li><strong class="step-title">Crea un departamento</strong> Escribe el nombre y pulsa <strong>Crear departamento</strong>.</li>
+    <li><strong class="step-title">Asigna usuarios</strong> En la ficha de cada usuario, selecciona el departamento del catálogo. El registro público también lo exige.</li>
+    <li><strong class="step-title">Renombra si es necesario</strong> Al cambiar el nombre, el sistema actualiza automáticamente el departamento de los usuarios vinculados.</li>
+    <li><strong class="step-title">Desactiva los que ya no se usan</strong> El departamento deja de aparecer en nuevos registros y altas, pero conserva el historial de los usuarios existentes.</li>
+  </ol>
+
+  <div class="box example">
+    <div class="box-title">Ejemplo práctico</div>
+    <p class="mb-0">
+      La empresa crea “Compras Internacionales”. Ana se registra y selecciona ese departamento;
+      el administrador la aprueba. Cuando Ana solicita la Sala Azul, la solicitud queda asociada
+      a Compras Internacionales. Si luego el área se renombra a “Comercio Exterior”, el
+      departamento de Ana y el de sus compañeros se actualiza automáticamente.
+    </p>
+  </div>
+
+  <div class="box benefits">
+    <div class="box-title">Bondades de esta sección</div>
+    <ul>
+      <li>Evita variaciones como “Ventas”, “ventas” o “Dpto. de Ventas” en las cuentas.</li>
+      <li>Permite ver cuántos usuarios activos, solicitudes e invitaciones tiene cada área.</li>
+      <li>Los filtros de Usuarios y Solicitudes se pueden combinar por departamento.</li>
+      <li>Al renombrar un área, se actualiza en todos los usuarios vinculados.</li>
+      <li>Desactivar un área evita nuevas asignaciones sin borrar su historial.</li>
+    </ul>
+  </div>
+
+  <div class="box tip">
+    <div class="box-title">Control por departamento</div>
+    <p class="mb-0">
+      En la tarjeta de cada departamento verás <strong>usuarios activos</strong>,
+      <strong>solicitudes realizadas</strong> y <strong>reuniones en las que sus integrantes
+      fueron invitados</strong>. Los enlaces <strong>Ver usuarios</strong> y
+      <strong>Ver solicitudes</strong> abren las listas ya filtradas.
+    </p>
   </div>
 </section>
 

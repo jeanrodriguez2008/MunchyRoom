@@ -22,6 +22,7 @@ from app.constants import Role
 from app.database import Base, SessionLocal, engine
 from app.models import MeetingRoom, User, UserRole
 from app.security import hash_password
+from app.seed import seed_departments
 from app.timeutils import now_caracas
 
 
@@ -30,6 +31,7 @@ def db():
     Base.metadata.create_all(bind=engine)
     session = SessionLocal()
     try:
+        seed_departments(session)
         yield session
     finally:
         session.close()

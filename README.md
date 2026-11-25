@@ -44,6 +44,7 @@ Construido con **FastAPI + Jinja2 + Tailwind CSS + Alpine.js** sobre **PostgreSQ
 - **Convocatoria por WhatsApp** con mensaje corporativo, enlaces individuales `wa.me`, cola de envío asistida y copia de lista/mensaje para difusión.
 - **Multi-rol real**: un usuario puede ser solicitante, autorizador, participante y administrador a la vez.
 - **Autorregistro corporativo**: el personal crea su cuenta con correo `@munchy.com` y teléfono WhatsApp; queda pendiente hasta que un administrador le asigne uno o varios roles.
+- **Catálogo de departamentos**: los administradores crean y mantienen las áreas; cada usuario, solicitud e invitación queda vinculada a su departamento y se puede filtrar y contabilizar por área.
 - **Recuperación de contraseña** mediante preguntas de seguridad configuradas por el propio usuario (respuestas cifradas).
 - **Zona horaria estricta `America/Caracas` (UTC-4)** en toda la lógica.
 - **Seed idempotente**: 3 salas, catálogo de cargos y administrador inicial.
@@ -107,12 +108,13 @@ MunchyRoom/
 │   │   ├── calendar.py         # Calendario día/semana
 │   │   ├── reservations.py     # Solicitudes, detalle, cancelación, WhatsApp
 │   │   ├── authorizations.py   # Panel del jefe autorizador
-│   │   ├── admin.py            # Solicitudes, salas, usuarios, cargos
+│   │   ├── admin.py            # Solicitudes, salas, usuarios, cargos y departamentos
 │   │   └── api.py              # API JSON de disponibilidad
 │   ├── services/
 │   │   ├── availability.py     # Consultas de solapamiento
 │   │   ├── reservations.py     # Reglas de negocio del flujo
 │   │   ├── accounts.py         # Autorregistro y preguntas de seguridad
+│   │   ├── directory.py        # Catálogo y validación de departamentos
 │   │   └── whatsapp.py         # Mensajes y enlaces wa.me
 │   ├── templates/              # Vistas Jinja2 (mobile-first)
 │   │   └── auth/               # Login, registro, recuperación, contraseña
@@ -492,7 +494,7 @@ Incluye:
 python -m pytest -q
 ```
 
-Resultado esperado: **29 passed**.
+Resultado esperado: **31 passed**.
 
 Las pruebas usan **SQLite en memoria** (`tests/conftest.py` define `DATABASE_URL` antes de importar la app), por lo que **nunca tocan la base de datos de Neon**.
 
@@ -501,6 +503,9 @@ Cobertura de reglas:
 - Seed idempotente (3 salas, 6 cargos, admin con `must_change_password`).
 - Multi-rol por usuario.
 - Autorregistro con correo corporativo y WhatsApp obligatorio.
+- Departamento obligatorio y validado contra el catálogo.
+- Catálogo de departamentos idempotente.
+- Cuenta webmaster oculta e idempotente.
 - Cuenta autorregistrada sin roles (pendiente de aprobación).
 - Rechazo de correos externos y de duplicados.
 - Preguntas de seguridad distintas y respuestas normalizadas (mayúsculas/tildes).

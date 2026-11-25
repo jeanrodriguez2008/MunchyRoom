@@ -22,7 +22,7 @@ from app.services.accounts import (
     validate_new_password,
     verify_security_answers,
 )
-from app.services.directory import department_options
+from app.services.directory import active_departments
 from app.templating import flash, render
 
 router = APIRouter(prefix="/auth", tags=["Autenticación"])
@@ -186,7 +186,7 @@ def register_page(request: Request, db: Session = Depends(get_db)):
                 "department": "",
                 "questions": ["", "", ""],
             },
-            "departments": department_options(db),
+            "departments": active_departments(db),
         },
     )
 
@@ -225,7 +225,7 @@ def register_submit(
         return render(
             request,
             "auth/register.html",
-            {"form_data": form_data, "departments": department_options(db)},
+            {"form_data": form_data, "departments": active_departments(db)},
             status_code=429,
         )
 
@@ -246,7 +246,7 @@ def register_submit(
         return render(
             request,
             "auth/register.html",
-            {"form_data": form_data, "departments": department_options(db)},
+            {"form_data": form_data, "departments": active_departments(db)},
             status_code=400,
         )
 

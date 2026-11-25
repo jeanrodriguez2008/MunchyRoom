@@ -6,9 +6,9 @@ import pytest
 from sqlalchemy import func, select
 
 from app.constants import Role
-from app.models import User, UserSecurityAnswer, WebmasterAccount
+from app.models import Department, User, UserSecurityAnswer, WebmasterAccount
 from app.security import verify_password
-from app.seed import seed_webmaster
+from app.seed import seed_departments, seed_webmaster
 from app.services.accounts import (
     AccountError,
     is_corporate_email,
@@ -83,6 +83,18 @@ def test_registration_requires_whatsapp_phone(db):
 def test_registration_requires_department(db):
     with pytest.raises(AccountError, match="departamento"):
         register_user(db, **registration_payload(department=""))
+
+
+def test_registration_rejects_unknown_department(db):
+    with pytest.raises(AccountError, match="departamento"):
+        register_user(db, **registration_payload(department="Departamento inventado"))
+
+
+def test_seed_departments_is_idempotent(db):
+    assert seed_departments(db) == 0
+    names = set(db.scalars(select(Department.name)).all())
+    assert "Ventas" in names
+    assert "Producción" in names
 
 
 def test_registration_rejects_mismatched_passwords(db):

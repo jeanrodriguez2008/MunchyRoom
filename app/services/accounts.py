@@ -28,6 +28,7 @@ from app.security import (
     verify_answer,
     verify_password,
 )
+from app.services.directory import find_department
 
 
 class AccountError(Exception):
@@ -124,6 +125,10 @@ def register_user(
         raise AccountError("Indica a qué departamento perteneces.")
     if len(department) > 120:
         raise AccountError("El departamento no puede superar 120 caracteres.")
+    department_row = find_department(db, department)
+    if department_row is None or not department_row.is_active:
+        raise AccountError("Selecciona un departamento válido y activo.")
+    department = department_row.name
     if db.scalar(select(User.id).where(User.email == email)) is not None:
         raise AccountError(
             "Ese correo ya está registrado. Si es tuyo, usa «¿Olvidaste tu contraseña?»."

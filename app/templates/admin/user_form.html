@@ -30,10 +30,21 @@
         </div>
         <div>
           <label for="department" class="label">Departamento</label>
-          <input id="department" name="department" type="text" required maxlength="120" value="{{ form_data.department }}" list="departments" class="field" placeholder="Ej.: Producción" autocomplete="organization">
-          <datalist id="departments">
-            {% for department in departments %}<option value="{{ department }}"></option>{% endfor %}
-          </datalist>
+          {% set department_names = departments | map(attribute='name') | list %}
+          <select id="department" name="department" required class="field">
+            <option value="">— Selecciona un departamento —</option>
+            {% if form_data.department and form_data.department not in department_names %}
+            <option value="{{ form_data.department }}" selected>{{ form_data.department }} (sin catálogo)</option>
+            {% endif %}
+            {% for department in departments %}
+            <option value="{{ department.name }}"
+              {% if form_data.department == department.name %}selected{% endif %}
+              {% if not department.is_active and form_data.department != department.name %}disabled{% endif %}>
+              {{ department.name }}{% if not department.is_active %} (inactivo){% endif %}
+            </option>
+            {% endfor %}
+          </select>
+          <p class="hint">¿Falta un departamento? <a href="/admin/departments" class="font-semibold text-munchy-blue hover:underline">Créalo en Departamentos</a>.</p>
         </div>
         <div>
           <label for="position_id" class="label">Cargo del catálogo</label>

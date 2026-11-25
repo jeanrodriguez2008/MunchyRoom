@@ -28,6 +28,10 @@
         </div>
         <h1 class="mt-3 font-display text-2xl font-extrabold leading-tight text-munchy-ink sm:text-3xl">{{ reservation.purpose }}</h1>
         <p class="mt-2 text-sm text-slate-500">{{ status_meta(reservation.status).description }}</p>
+        <p class="mt-1 text-sm text-slate-500">
+          Solicita <strong class="text-slate-700">{{ reservation.requester.full_name }}</strong>
+          {% if reservation.requester.department %} · {{ reservation.requester.department }}{% endif %}
+        </p>
 
         <div class="mt-4 grid gap-3 sm:grid-cols-2">
           <div class="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-3.5 py-3">

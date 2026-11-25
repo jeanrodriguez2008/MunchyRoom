@@ -12,9 +12,9 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.config import settings
-from app.models import MeetingRoom, Position, User, UserRole, WebmasterAccount
+from app.models import Department, MeetingRoom, Position, User, UserRole, WebmasterAccount
 from app.security import hash_password
-from app.constants import Role
+from app.constants import DEFAULT_DEPARTMENTS, Role
 
 DEFAULT_ROOMS = [
     {
@@ -98,6 +98,39 @@ def ensure_general_roles(db: Session) -> None:
     if admin and not admin.has_role(Role.ADMIN):
         db.add(UserRole(user_id=admin.id, role_name=Role.ADMIN))
         db.commit()
+
+
+def seed_departments(db: Session) -> int:
+    """Crea el catálogo inicial de departamentos de forma idempotente.
+
+    Incluye la lista base y los departamentos que ya estén escritos en los
+    usuarios existentes (por ejemplo, datos creados antes del catálogo).
+    """
+    existing = {
+        name.strip().casefold()
+        for name in db.scalars(select(Department.name)).all()
+        if name and name.strip()
+    }
+    candidates = list(DEFAULT_DEPARTMENTS)
+    candidates += [
+        value.strip()
+        for value in db.scalars(
+            select(User.department).where(User.department != "").distinct()
+        ).all()
+        if value and value.strip()
+    ]
+
+    created = 0
+    for name in candidates:
+        key = name.casefold()
+        if key in existing:
+            continue
+        db.add(Department(name=name))
+        existing.add(key)
+        created += 1
+    if created:
+        db.commit()
+    return created
 
 
 def seed_webmaster(

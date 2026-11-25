@@ -44,13 +44,23 @@
         </div>
         <div class="sm:col-span-2">
           <label for="department" class="label">Departamento</label>
-          <input id="department" name="department" type="text" required maxlength="120"
-                 value="{{ form_data.department }}" list="registration-departments" class="field"
-                 placeholder="Ej.: Producción, Ventas, Administración" autocomplete="organization">
-          <datalist id="registration-departments">
-            {% for department in departments %}<option value="{{ department }}"></option>{% endfor %}
-          </datalist>
-          <p class="hint">Indica el departamento al que perteneces.</p>
+          {% if departments %}
+          <select id="department" name="department" required class="field">
+            <option value="">— Selecciona tu departamento —</option>
+            {% for department in departments %}
+            <option value="{{ department.name }}" {% if form_data.department == department.name %}selected{% endif %}>{{ department.name }}</option>
+            {% endfor %}
+          </select>
+          <p class="hint">Selecciona el área a la que perteneces.</p>
+          {% else %}
+          <div class="alert border-amber-200 bg-amber-50 text-amber-900">
+            <svg class="h-5 w-5 shrink-0"><use href="#i-warning"></use></svg>
+            <p>No hay departamentos activos. Pide al administrador que cree uno antes de registrarte.</p>
+          </div>
+          <select id="department" name="department" disabled class="field">
+            <option value="">Sin departamentos disponibles</option>
+          </select>
+          {% endif %}
         </div>
         <div>
           <label for="password" class="label">Contraseña</label>

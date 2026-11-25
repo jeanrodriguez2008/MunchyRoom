@@ -14,9 +14,18 @@ from app.config import settings
 from app.constants import ROLE_LABELS, ReservationStatus, Role
 from app.database import get_db
 from app.dependencies import require_roles
-from app.models import MeetingRoom, Position, Reservation, User, UserRole, WebmasterAccount
+from app.models import (
+    Department,
+    MeetingRoom,
+    Position,
+    Reservation,
+    ReservationParticipant,
+    User,
+    UserRole,
+    WebmasterAccount,
+)
 from app.security import hash_password, is_valid_email, normalize_phone
-from app.services.directory import department_options
+from app.services.directory import all_departments, find_department
 from app.services.reservations import (
     BusinessRuleError,
     reject_by_admin,
@@ -46,8 +55,8 @@ def _active_authorizers(db: Session) -> list[User]:
     )
 
 
-def _departments(db: Session) -> list[str]:
-    return department_options(db)
+def _departments(db: Session):
+    return all_departments(db)
 
 
 def _positions(db: Session) -> list[Position]:
@@ -118,6 +127,15 @@ def _validate_user_payload(
         return None, "Indica el departamento del usuario."
     if len(department) > 120:
         return None, "El departamento no puede superar 120 caracteres."
+
+    department_row = find_department(db, department)
+    if department_row is None:
+        return None, "Selecciona un departamento del catálogo."
+    if not department_row.is_active:
+        current_user = db.get(User, current_id) if current_id else None
+        if current_user is None or (current_user.department or "").strip().lower() != department_row.name.lower():
+            return None, "El departamento seleccionado está inactivo."
+    department = department_row.name
 
     duplicate = db.scalar(
         select(User).where(User.email == email, User.id != (current_id or 0))
@@ -201,19 +219,23 @@ def admin_requests(
     db: Session = Depends(get_db),
     status: str = Query(""),
     q: str = Query(""),
+    department: str = Query(""),
     page: int = Query(1, ge=1),
 ):
     q = q.strip()
+    department = department.strip()
     stmt = select(Reservation)
     count_stmt = select(func.count(func.distinct(Reservation.id))).select_from(Reservation)
 
-    if q:
+    if q or department:
         stmt = stmt.join(User, User.id == Reservation.requester_id)
         count_stmt = count_stmt.join(User, User.id == Reservation.requester_id)
 
     filters = []
     if status in ReservationStatus.ALL:
         filters.append(Reservation.status == status)
+    if department:
+        filters.append(User.department == department)
     if q:
         filters.append(
             or_(
@@ -245,6 +267,8 @@ def admin_requests(
             "reservations": reservations,
             "selected_status": status,
             "q": q,
+            "selected_department": department,
+            "departments": all_departments(db),
             "page": page,
             "pages": pages,
             "total": total,
@@ -519,9 +543,11 @@ def admin_users(
     q: str = Query(""),
     role: str = Query(""),
     estado: str = Query(""),
+    department: str = Query(""),
     page: int = Query(1, ge=1),
 ):
     q = q.strip()
+    department = department.strip()
     stmt = select(User)
     count_stmt = select(func.count(func.distinct(User.id))).select_from(User)
 
@@ -534,6 +560,8 @@ def admin_users(
                 User.department.ilike(f"%{q}%"),
             )
         )
+    if department:
+        filters.append(User.department == department)
     if role in Role.ALL:
         stmt = stmt.join(UserRole, UserRole.user_id == User.id).where(UserRole.role_name == role)
         count_stmt = count_stmt.join(UserRole, UserRole.user_id == User.id).where(UserRole.role_name == role)
@@ -578,6 +606,8 @@ def admin_users(
             "q": q,
             "selected_role": role,
             "selected_estado": estado,
+            "selected_department": department,
+            "departments": all_departments(db),
             "pending_count": pending_count,
             "page": page,
             "pages": pages,
@@ -829,6 +859,145 @@ def admin_user_reject(
         "success",
     )
     return RedirectResponse("/admin/users?estado=pendientes", status_code=303)
+
+
+# ---------------------------------------------------------------------------
+# Catálogo de departamentos
+# ---------------------------------------------------------------------------
+@router.get("/departments", name="admin_departments")
+def admin_departments(
+    request: Request,
+    admin: User = Depends(require_roles(Role.ADMIN)),
+    db: Session = Depends(get_db),
+):
+    departments = all_departments(db)
+
+    user_counts = dict(
+        db.execute(
+            select(User.department, func.count(User.id))
+            .where(
+                User.department != "",
+                User.is_active.is_(True),
+                User.email != settings.webmaster_email,
+            )
+            .group_by(User.department)
+        ).all()
+    )
+    request_counts = dict(
+        db.execute(
+            select(User.department, func.count(Reservation.id))
+            .join(Reservation, Reservation.requester_id == User.id)
+            .group_by(User.department)
+        ).all()
+    )
+    invitation_counts = dict(
+        db.execute(
+            select(
+                User.department,
+                func.count(func.distinct(ReservationParticipant.reservation_id)),
+            )
+            .join(ReservationParticipant, ReservationParticipant.user_id == User.id)
+            .group_by(User.department)
+        ).all()
+    )
+
+    rows = [
+        {
+            "department": department,
+            "users": user_counts.get(department.name, 0),
+            "requests": request_counts.get(department.name, 0),
+            "invitations": invitation_counts.get(department.name, 0),
+        }
+        for department in departments
+    ]
+
+    return render(
+        request,
+        "admin/departments.html",
+        {
+            "user": admin,
+            "rows": rows,
+            "total_departments": len(rows),
+            "active_departments": sum(1 for item in rows if item["department"].is_active),
+            "total_assigned": sum(user_counts.values()),
+        },
+    )
+
+
+@router.post("/departments", name="admin_department_create")
+def admin_department_create(
+    request: Request,
+    admin: User = Depends(require_roles(Role.ADMIN)),
+    db: Session = Depends(get_db),
+    name: str = Form(""),
+):
+    name = name.strip()
+    if len(name) < 2:
+        flash(request, "Escribe el nombre del departamento.", "error")
+    elif len(name) > 120:
+        flash(request, "El nombre no puede superar 120 caracteres.", "error")
+    elif db.scalar(select(Department).where(func.lower(Department.name) == name.lower())):
+        flash(request, "Ya existe un departamento con ese nombre.", "error")
+    else:
+        db.add(Department(name=name, is_active=True))
+        flash(request, f"Departamento «{name}» creado.", "success")
+    return RedirectResponse("/admin/departments", status_code=303)
+
+
+@router.post("/departments/{department_id}", name="admin_department_update")
+def admin_department_update(
+    request: Request,
+    department_id: int,
+    admin: User = Depends(require_roles(Role.ADMIN)),
+    db: Session = Depends(get_db),
+    name: str = Form(""),
+):
+    department = db.get(Department, department_id)
+    if department is None:
+        raise HTTPException(status_code=404, detail="El departamento no existe.")
+
+    name = name.strip()
+    if len(name) < 2:
+        flash(request, "Escribe el nombre del departamento.", "error")
+    elif len(name) > 120:
+        flash(request, "El nombre no puede superar 120 caracteres.", "error")
+    elif db.scalar(
+        select(Department).where(
+            func.lower(Department.name) == name.lower(),
+            Department.id != department.id,
+        )
+    ):
+        flash(request, "Ya existe otro departamento con ese nombre.", "error")
+    else:
+        old_name = department.name
+        department.name = name
+        # Mantiene sincronizado el departamento mostrado en los usuarios.
+        if old_name != name:
+            for linked_user in db.scalars(
+                select(User).where(func.lower(User.department) == old_name.lower())
+            ).all():
+                linked_user.department = name
+        flash(request, "Departamento actualizado.", "success")
+    return RedirectResponse("/admin/departments", status_code=303)
+
+
+@router.post("/departments/{department_id}/toggle", name="admin_department_toggle")
+def admin_department_toggle(
+    request: Request,
+    department_id: int,
+    admin: User = Depends(require_roles(Role.ADMIN)),
+    db: Session = Depends(get_db),
+):
+    department = db.get(Department, department_id)
+    if department is None:
+        raise HTTPException(status_code=404, detail="El departamento no existe.")
+    department.is_active = not department.is_active
+    flash(
+        request,
+        f"Departamento «{department.name}» {'activado' if department.is_active else 'desactivado'}.",
+        "success",
+    )
+    return RedirectResponse("/admin/departments", status_code=303)
 
 
 # ---------------------------------------------------------------------------
