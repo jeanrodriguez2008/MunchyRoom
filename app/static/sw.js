@@ -2,7 +2,7 @@
    Estrategia: network-first para navegación (nunca cachea HTML autenticado),
    cache-first para estáticos propios, pantalla de "servidor en descanso"
    cuando Render tarda en despertar y fallback offline. */
-const CACHE_NAME = "munchyroom-v8";
+const CACHE_NAME = "munchyroom-v9";
 const OFFLINE_URL = "/offline";
 const WAKE_URL = "/static/wake.html";
 const WAKE_TIMEOUT_MS = 9000;

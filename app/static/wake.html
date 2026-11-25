@@ -184,27 +184,6 @@
       margin-top: 6px;
     }
     .ready.visible { display: block; }
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      width: 100%;
-      min-height: 48px;
-      border: 0;
-      border-radius: 13px;
-      background: var(--blue);
-      color: #fff;
-      font-family: inherit;
-      font-size: 14px;
-      font-weight: 800;
-      cursor: pointer;
-      box-shadow: 0 12px 24px -14px rgba(0, 51, 160, .8);
-      transition: background .15s ease, transform .15s ease;
-    }
-    .btn:hover { background: var(--blue-dark); }
-    .btn:active { transform: translateY(1px); }
-    .btn svg { width: 18px; height: 18px; }
     .foot {
       margin: 20px 0 0;
       color: #94a3b8;
@@ -213,7 +192,7 @@
     }
     .hidden { display: none !important; }
     @media (prefers-reduced-motion: reduce) {
-      .bar span, .btn { transition: none; }
+      .bar span { transition: none; }
     }
   </style>
 </head>
@@ -251,16 +230,9 @@
       <p class="status" style="margin-bottom:6px">
         <strong>Reconectando automáticamente…</strong>
       </p>
-      <p class="status" style="margin-bottom:12px">
-        No necesitas hacer nada. Si la página no se recarga, pulsa <strong>Reconectar</strong>.
+      <p class="status">
+        No cierres esta página. Volverás a MunchyRoom en un instante.
       </p>
-      <button type="button" class="btn" id="reconnect">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M21 12a9 9 0 1 1-2.64-6.36"/>
-          <path d="M21 3v6h-6"/>
-        </svg>
-        Reconectar
-      </button>
     </div>
 
     <p class="hint">
@@ -287,9 +259,7 @@
       var barEl = document.getElementById("bar");
       var countdownArea = document.getElementById("countdownArea");
       var readyEl = document.getElementById("ready");
-      var button = document.getElementById("reconnect");
       var timer = null;
-      var reloadTimer = null;
       var finished = false;
 
       function render() {
@@ -308,19 +278,12 @@
           statusEl.classList.add("hidden");
           readyEl.classList.add("visible");
 
-          // Reconexión automática: el botón queda solo como respaldo.
-          reloadTimer = window.setTimeout(function () {
+          // Reconexión automática, sin intervención del usuario.
+          window.setTimeout(function () {
             window.location.reload();
-          }, 800);
+          }, 600);
         }
       }
-
-      button.addEventListener("click", function () {
-        if (reloadTimer) {
-          window.clearTimeout(reloadTimer);
-        }
-        window.location.reload();
-      });
 
       render();
       timer = window.setInterval(render, 250);
